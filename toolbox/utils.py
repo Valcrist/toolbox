@@ -5,6 +5,7 @@ import time
 import json
 import uuid
 import inspect
+from types import FrameType
 from typing import Any, Union, Optional, List, Dict
 from pprint import pp, pformat
 from decimal import Decimal as dec
@@ -236,7 +237,14 @@ def get_basename(file_path: str, split: Union[bool, int] = False) -> Union[str, 
             return name, ext
 
 
-def printc(text, color="default", bg="default", pad=1, no_nl=False):
+def printc(
+    text: str,
+    color: str = "default",
+    bg: str = "default",
+    pad: int = 1,
+    no_nl: bool = False,
+) -> None:
+
     colors = {
         "default": "\033[0m",
         "black": "\033[30m",
@@ -258,7 +266,7 @@ def printc(text, color="default", bg="default", pad=1, no_nl=False):
     }
 
     bg_colors = {
-        "default": "",
+        "default": "\033[40m",
         "black": "\033[40m",
         "red": "\033[41m",
         "green": "\033[42m",
@@ -287,7 +295,7 @@ def printc(text, color="default", bg="default", pad=1, no_nl=False):
         print()
 
 
-def err(text, caller=None):
+def err(text: str, caller: Optional[FrameType] = None) -> None:
     global _utils_logged_msgs
     if not caller:
         caller = inspect.currentframe().f_back
@@ -298,7 +306,7 @@ def err(text, caller=None):
     printc(message, "bright_yellow", "red", pad=1)
 
 
-def warn(text, caller=None):
+def warn(text: str, caller: Optional[FrameType] = None) -> None:
     global _utils_logged_msgs
     if not caller:
         caller = inspect.currentframe().f_back
@@ -309,12 +317,12 @@ def warn(text, caller=None):
     printc(message, "bright_yellow", "magenta", pad=1)
 
 
-def get_logged_msgs():
+def get_logged_msgs() -> List[List[Any]]:
     global _utils_logged_msgs
     return _utils_logged_msgs
 
 
-def print__utils_logged_msgs():
+def print_logged_msgs() -> None:
     global _utils_logged_msgs
     if not _utils_logged_msgs:
         return
@@ -327,9 +335,17 @@ def print__utils_logged_msgs():
             printc(msg[1], "bright_yellow", "bright_yellow", "magenta", pad=1)
 
 
-def debug(var, var_name=None, lvl=1, caller=None, always=False):
+def debug(
+    var: Any,
+    var_name: Optional[str] = None,
+    lvl: int = 1,
+    caller: Optional[FrameType] = None,
+    always: bool = False,
+) -> None:
     if not always and _DEBUG < lvl:
         return
+
+    i = f":{lvl}" if lvl > 1 else ""
 
     if not caller:
         caller = inspect.currentframe().f_back
@@ -348,49 +364,58 @@ def debug(var, var_name=None, lvl=1, caller=None, always=False):
 
     if not isinstance(var, (list, tuple, dict)):
         print(
-            f"🪲 \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
+            f"🪲{i} \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
             f" {var_name} \033[36m\033[40m : \033[96m{var}\033[0m\n"
         )
 
     else:
         print(
-            f"🪲 \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
+            f"🪲{i} \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
             f" {var_name} \033[36m\033[40m :\033[0m\033[40m"
         )
         printc(pformat(var), color="bright_cyan", bg="black")
         print()
 
 
-def hr(symbol="-", len=100, color="bright_magenta", bg="default"):
+def hr(
+    symbol: str = "-",
+    len: int = 100,
+    color: str = "bright_magenta",
+    bg: str = "default",
+) -> None:
     printc(f"\n{symbol*len}\n", color=color, bg=bg)
 
 
-def var2str(var):
+def var2str(var: Any) -> str:
     return json.dumps(obj_to_srl(var), indent=2)
 
 
-def strip_brackets(text):
-    try:
-        return re.sub(r"[\[\{].*?[\]\}]", "", text)
-    except:
-        return text
-
-
-def fix_spaces(text):
+def fix_spaces(text: str) -> str:
     try:
         return re.sub(r"(\S)(\()|(\))(\S)", r"\1\3 \2\4", text).strip()
     except:
         return text
 
 
-def strip_spaces(text):
+def strip_brackets(text: str) -> str:
+    try:
+        return re.sub(r"[\[\{].*?[\]\}]", "", text)
+    except:
+        return text
+
+
+def strip_spaces(text: str) -> str:
     try:
         return " ".join(text.replace("\n", " ").replace("\r", " ").split()).strip()
     except:
         return text
 
 
-def longest_common_subsequence(strings, no_case=False):
+def strip_non_num(text: Any) -> str:
+    return "".join(filter(str.isdigit, str(text)))
+
+
+def longest_common_subsequence(strings: List[str], no_case: bool = False) -> str:
     if not strings:
         return ""
     if no_case:
@@ -404,7 +429,7 @@ def longest_common_subsequence(strings, no_case=False):
     return lcs
 
 
-def longest_common_subsequence_any(strings, no_case=False):
+def longest_common_subsequence_any(strings: List[str], no_case: bool = False) -> str:
     if not strings:
         return ""
     if no_case:
