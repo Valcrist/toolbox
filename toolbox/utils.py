@@ -18,7 +18,7 @@ from toolbox.log import log
 from traceback import format_exc as exc
 
 
-_DEBUG = get_env("DEBUG", 0)
+_DEBUG = get_env("DEBUG", 1)
 _DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%dT%H:%M:%S.%fZ")
 _utils_logged_msgs = []
 
@@ -338,7 +338,7 @@ def print_logged_msgs() -> None:
 def debug(
     var: Any,
     var_name: Optional[str] = None,
-    lvl: int = 1,
+    lvl: int = 0,
     caller: Optional[FrameType] = None,
     always: bool = False,
 ) -> None:
