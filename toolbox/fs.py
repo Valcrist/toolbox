@@ -1,15 +1,21 @@
 import os
 import re
-import shutil
+import sys
 import time
+import shutil
 from typing import Union
 from pathlib import Path
 from toolbox.log import log
 from traceback import format_exc as exc
 
 
-def basedir() -> Path:
-    return Path(__file__).resolve().parent.parent
+def basedir() -> Path | None:
+    try:
+        return Path(sys.argv[0]).resolve().parent
+    except Exception as e:
+        log(f"Error getting basedir: {e}", lvl="error")
+        log(f"Traceback:\n{exc()}", lvl="warning")
+        return None
 
 
 def os_path(path: str) -> str:
