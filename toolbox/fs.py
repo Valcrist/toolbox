@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import time
 from typing import Union
@@ -50,6 +51,10 @@ def dissect_path(
         log(f"Error dissecting path: {path}", lvl="error")
         log(f"Traceback:\n{exc()}", lvl="warning")
     return v
+
+
+def sanitize_path(path: str, sub: str = "_") -> str:
+    return re.sub(r'[<>:"|?*]', sub, path)
 
 
 def delete(path: Union[Path, str]) -> bool:
