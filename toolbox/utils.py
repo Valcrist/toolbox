@@ -244,7 +244,6 @@ def printc(
     pad: int = 1,
     no_nl: bool = False,
 ) -> None:
-
     colors = {
         "default": "\033[0m",
         "black": "\033[30m",
@@ -264,7 +263,6 @@ def printc(
         "bright_cyan": "\033[96m",
         "bright_white": "\033[97m",
     }
-
     bg_colors = {
         "default": "\033[40m",
         "black": "\033[40m",
@@ -284,11 +282,11 @@ def printc(
         "bright_cyan": "\033[106m",
         "bright_white": "\033[107m",
     }
-
     color_code = colors.get(color.lower(), colors["default"])
     bgcol_code = bg_colors.get(bg.lower(), bg_colors["default"])
     reset_code = f"{colors['default']}\033[40m"
-
+    if pad == 1 and bg == "default":
+        pad = 0
     padding = " " * pad
     print(f"{color_code}{bgcol_code}{padding}{text}{padding}{reset_code}")
     if not no_nl:
