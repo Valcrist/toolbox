@@ -156,6 +156,13 @@ def round_date(
         return date
 
 
+def round_to_last_min(date, format="%Y-%m-%dT%H:%M:%S.%fZ"):
+    date = to_date(date, format=format)
+    rounded = to_date(date).replace(second=0, microsecond=0)
+    rounded = rounded - timedelta(minutes=1)
+    return rounded
+
+
 def delta_days(
     start: Union[datetime, str],
     end: Union[datetime, str] = utc_now(),
