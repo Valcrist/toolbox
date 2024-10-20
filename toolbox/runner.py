@@ -20,3 +20,19 @@ def run_async_tasks(*tasks):
     except Exception as e:
         err(f"Failed to run event loop: {e}")
         warn(exc())
+
+
+def safe_run(func, default=None):
+    try:
+        return func()
+    except:
+        warn(exc())
+        return default
+
+
+async def safe_run_async(func, default=None):
+    try:
+        return await func()
+    except:
+        warn(exc())
+        return default
