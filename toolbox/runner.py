@@ -30,9 +30,9 @@ def safe_run(func, default=None):
         return default
 
 
-async def safe_run_async(func, default=None):
+async def async_safe_run(func, default=None):
     try:
-        return await func()
+        return func()
     except:
         warn(exc())
         return default
