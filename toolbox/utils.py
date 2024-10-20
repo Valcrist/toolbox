@@ -242,7 +242,7 @@ def printc(
     color: str = "default",
     bg: str = "default",
     pad: int = 1,
-    no_nl: bool = False,
+    no_nl: Union[int, bool] = 0,
 ) -> None:
     colors = {
         "default": "\033[0m",
@@ -289,6 +289,8 @@ def printc(
         pad = 0
     padding = " " * pad
     print(f"{color_code}{bgcol_code}{padding}{text}{padding}{reset_code}")
+    if color != "default" and bg == "default" and no_nl is 0:
+        no_nl = True
     if not no_nl:
         print()
 
