@@ -1,6 +1,7 @@
 import pytz
 from typing import Optional, Union, Tuple, List
 from datetime import UTC, datetime, timedelta
+from tzlocal import get_localzone
 from toolbox.dot_env import get_env
 from toolbox.utils import log, debug
 from traceback import format_exc as exc
@@ -20,7 +21,7 @@ def default_date() -> datetime:
 
 def set_tz(date: datetime, tz_name: Optional[str] = None) -> datetime:
     try:
-        tz = pytz.timezone(tz_name) if tz_name else pytz.timezone("local")
+        tz = pytz.timezone(tz_name) if tz_name else get_localzone()
         if isinstance(date, datetime):
             return date.replace(tzinfo=tz)
     except Exception as e:
