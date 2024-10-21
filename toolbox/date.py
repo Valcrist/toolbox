@@ -1,5 +1,5 @@
 import pytz
-from typing import Union, List, Tuple
+from typing import Optional, Union, Tuple, List
 from datetime import UTC, datetime, timedelta
 from toolbox.dot_env import get_env
 from toolbox.utils import log, debug
@@ -18,9 +18,15 @@ def default_date() -> datetime:
     return datetime.fromtimestamp(timestamp)
 
 
-def set_tz(date: datetime, tz=pytz.timezone) -> datetime:
-    if isinstance(date, datetime):
-        return date.replace(tzinfo=tz)
+def set_tz(date: datetime, tz_name: Optional[str] = None) -> datetime:
+    try:
+        tz = pytz.timezone(tz_name) if tz_name else pytz.timezone("local")
+        if isinstance(date, datetime):
+            return date.replace(tzinfo=tz)
+    except Exception as e:
+        log(f"Error setting timezone: {e}", lvl="warning")
+        log(f"Exception: {exc()}", lvl="warning")
+        print()
     return date
 
 
