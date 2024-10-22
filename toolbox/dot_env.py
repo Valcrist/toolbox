@@ -3,7 +3,7 @@ from typing import Any
 from dotenv import load_dotenv
 from traceback import format_exc as exc
 
-load_dotenv()
+load_dotenv(override=True)
 
 
 def get_env(key: str, default: Any = None, verbose: bool = False) -> Any:
