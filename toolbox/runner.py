@@ -22,6 +22,16 @@ def run_async_tasks(*tasks):
         warn(exc())
 
 
+def run_async_bg_tasks(*coro_or_future):
+    try:
+        loop = asyncio.get_event_loop()
+        return [asyncio.ensure_future(task, loop=loop) for task in coro_or_future]
+    except Exception as e:
+        err(f"Failed to schedule background task(s): {e}")
+        warn(exc())
+        return None
+
+
 def safe_run(func, default=None):
     try:
         return func()
