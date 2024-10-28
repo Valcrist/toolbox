@@ -2,3 +2,4 @@ python-dotenv
 hexbytes
 colorlog
 pytz
+tzlocal
