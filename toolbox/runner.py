@@ -1,6 +1,8 @@
 import asyncio
 import threading
-from toolbox.utils import err, warn, exc
+from time import time
+from toolbox.date import time_now
+from toolbox.utils import err, warn, exc, printc
 
 
 def get_or_create_event_loop():
@@ -62,3 +64,14 @@ async def async_safe_run(func, default=None):
     except:
         warn(exc())
         return default
+
+
+def timed_run(func, *args, **kwargs):
+    exec_start = time()
+    result = func(*args, **kwargs)
+    exec_end = time()
+    printc(
+        f"[{time_now()}] {func.__name__}: completed in {exec_end - exec_start:.2f}s",
+        "yellow",
+    )
+    return result
