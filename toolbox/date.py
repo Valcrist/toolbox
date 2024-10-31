@@ -31,6 +31,11 @@ def set_tz(date: datetime, tz_name: Optional[str] = None) -> datetime:
     return date
 
 
+def time_now(tz_name: Optional[str] = None) -> datetime:
+    tz = pytz.timezone(tz_name) if tz_name else get_localzone()
+    return datetime.now(tz)
+
+
 def utc_now(string: Union[bool, str] = False) -> Union[datetime, str]:
     time_now = datetime.now(UTC)
     time_now = time_now.replace(tzinfo=pytz.utc)
