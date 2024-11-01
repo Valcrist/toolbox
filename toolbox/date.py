@@ -126,6 +126,9 @@ def to_timestamp(date: Union[datetime, str], format: str = _DATE_FORMAT) -> int:
 
 
 def timestamp_to_date(timestamp: int, tz: pytz.timezone = pytz.utc) -> datetime:
+    # If timestamp is in milliseconds (> year 2286), convert to seconds
+    if timestamp > 999999999999:
+        timestamp = timestamp / 1000
     return datetime.fromtimestamp(timestamp, tz=tz)
 
 
