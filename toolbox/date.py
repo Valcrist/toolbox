@@ -120,7 +120,7 @@ def to_utc_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
         return None
 
 
-def timestamp(date: Union[datetime, str], format: str = _DATE_FORMAT) -> int:
+def to_timestamp(date: Union[datetime, str], format: str = _DATE_FORMAT) -> int:
     date = to_date(date, format=format)
     return int(date.timestamp())
 
