@@ -125,6 +125,10 @@ def timestamp(date: Union[datetime, str], format: str = _DATE_FORMAT) -> int:
     return int(date.timestamp())
 
 
+def timestamp_to_date(timestamp: int, tz: pytz.timezone = pytz.utc) -> datetime:
+    return datetime.fromtimestamp(timestamp, tz=tz)
+
+
 def time_delta(
     start: Union[datetime, str],
     end: Union[datetime, str] = utc_now(),

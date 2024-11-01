@@ -289,7 +289,7 @@ def printc(
         pad = 0
     padding = " " * pad
     print(f"{color_code}{bgcol_code}{padding}{text}{padding}{reset_code}")
-    if color != "default" and bg == "default" and no_nl is 0:
+    if color != "default" and bg == "default" and no_nl == 0:
         no_nl = True
     if not no_nl:
         print()
