@@ -51,16 +51,14 @@ async def async_get_url(
 
     if isinstance(url, list):
         url = list(dict.fromkeys(url))
+        result = await asyncio.gather(*[fetch_url(u) for u in url])
+        result = {r["url"]: {"code": r["code"], "resp": r["resp"]} for r in result}
         if len(url) == 1:
             url = url[0]
-    result = (
-        await asyncio.gather(*[fetch_url(u) for u in url])
-        if isinstance(url, list)
-        else [await fetch_url(url)]
-    )
+    else:
+        result = await fetch_url(url)
     debug(result, "result", lvl=3)
-    response = {r["url"]: {"code": r["code"], "resp": r["resp"]} for r in result}
-    return response[url] if len(response) == 1 else response
+    return result
 
 
 def get_url(
