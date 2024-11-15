@@ -58,7 +58,7 @@ async def async_get_url(
     else:
         result = await fetch_url(url)
     debug(result, "result", lvl=3)
-    return result
+    return result[url] if len(result) == 1 else result
 
 
 def get_url(
