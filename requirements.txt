@@ -3,3 +3,4 @@ hexbytes
 colorlog
 pytz
 tzlocal
+aiohttp

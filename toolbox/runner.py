@@ -23,10 +23,12 @@ def get_or_create_event_loop():
 def run_async_tasks(*tasks):
     try:
         loop = get_or_create_event_loop()
-        return loop.run_until_complete(asyncio.gather(*tasks))
+        results = loop.run_until_complete(asyncio.gather(*tasks))
+        return results[0] if len(tasks) == 1 else results
     except Exception as e:
         err(f"Failed to run event loop: {e}")
         warn(exc())
+        return None
 
 
 def run_async_bg_tasks(*coro_or_future):
@@ -43,7 +45,7 @@ def run_async_bg_tasks(*coro_or_future):
         tasks = [asyncio.ensure_future(task, loop=loop) for task in coro_or_future]
         thread = threading.Thread(target=run_in_thread, args=(loop, tasks))
         thread.start()
-        return tasks
+        return tasks[0] if len(tasks) == 1 else tasks
     except Exception as e:
         err(f"Failed to schedule background task(s): {e}")
         warn(exc())

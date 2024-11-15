@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="toolbox",
-    version="0.1.25",
+    version="0.1.26",
     packages=find_packages(),
     install_requires=[
         "python-dotenv",
@@ -10,6 +10,7 @@ setup(
         "colorlog",
         "pytz",
         "tzlocal",
+        "aiohttp",
     ],
     url="https://github.com/Valcrist/toolbox",
     author="Valcrist",
