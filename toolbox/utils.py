@@ -24,8 +24,9 @@ _utils_logged_msgs = []
 
 
 def obj_to_srl(obj: Any, dt_format: str = _DATE_FORMAT, verbose: bool = False) -> Any:
-    lvl = 0 if verbose else 2
+    lvl = 0 if verbose else 3
     debug(type(obj), "object type", lvl=lvl)
+    debug(obj, "object value", lvl=lvl)
     if isinstance(obj, list) or isinstance(obj, tuple):
         return [obj_to_srl(item) for item in obj]
     elif isinstance(obj, dict):
