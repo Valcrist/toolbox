@@ -41,6 +41,10 @@ def obj_to_srl(obj: Any, dt_format: str = _DATE_FORMAT, verbose: bool = False) -
         return obj
 
 
+def obj_to_json(obj: Any) -> str:
+    return json.dumps(obj_to_srl(obj))
+
+
 def var2json(file: str, data: Any) -> bool:
     try:
         Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
@@ -155,6 +159,10 @@ def to_dict(
         return data
     else:
         return row_to_dict(result)
+
+
+def sqldata_to_json(data: Any) -> str:
+    return json.dumps(obj_to_srl(to_dict(data)))
 
 
 def get_float_len(val: float) -> int:
@@ -387,8 +395,8 @@ def hr(
     printc(f"\n{symbol*len}\n", color=color, bg=bg)
 
 
-def var2str(var: Any) -> str:
-    return json.dumps(obj_to_srl(var), indent=2)
+def var2str(var: Any, indent: int = 2) -> str:
+    return json.dumps(obj_to_srl(var), indent=indent)
 
 
 def fix_spaces(text: str) -> str:
