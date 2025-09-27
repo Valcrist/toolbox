@@ -5,8 +5,7 @@ import time
 import shutil
 from typing import Union
 from pathlib import Path
-from toolbox.log import log
-from traceback import format_exc as exc
+from toolbox.log import log, exc
 
 
 def basedir() -> Path | None:

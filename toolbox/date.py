@@ -3,8 +3,7 @@ from typing import Optional, Union, Tuple, List
 from datetime import UTC, datetime, timedelta
 from tzlocal import get_localzone
 from toolbox.dot_env import get_env
-from toolbox.utils import log, debug
-from traceback import format_exc as exc
+from toolbox.utils import log, debug, exc
 
 
 _DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%dT%H:%M:%S.%fZ")

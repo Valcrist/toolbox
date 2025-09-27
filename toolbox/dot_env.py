@@ -1,18 +1,29 @@
 import os
+import inspect
 from typing import Any
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from traceback import format_exc as exc
 
-load_dotenv(override=True)
+
+def debug(title: str, var: Any = None):
+    caller = inspect.currentframe().f_back
+    caller_file = os.path.basename(caller.f_code.co_filename)
+    print(
+        f"🪲 \033[36m[{caller_file}:get_env] ⮞ \033[30m\033[106m"
+        f" {title} \033[36m\033[40m : \033[96m{var}\033[0m\n"
+    )
+
+
+env_file = find_dotenv()
+debug("env_file", env_file)
+load_dotenv(env_file, override=True)
 
 
 def get_env(key: str, default: Any = None, verbose: bool = False) -> Any:
-    lvl = 0 if verbose else 2
     val = os.environ.get(key, default)
 
     if verbose:
-        print(f"{key} ({type(val)}): {val}")
-        print(f"DEFAULT ({type(default)}): {default}")
+        debug(key, f"{val} (default={default}) {type(val)}")
 
     if isinstance(default, bool) and not isinstance(val, bool):
         if val.lower() in ["false", "0", "none", "null"]:
