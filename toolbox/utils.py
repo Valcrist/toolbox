@@ -24,9 +24,12 @@ _utils_logged_msgs = []
 
 
 def obj_to_srl(obj: Any, dt_format: str = _DATE_FORMAT, verbose: bool = False) -> Any:
-    lvl = 0 if verbose else 3
-    debug(type(obj), "object type", lvl=lvl)
-    debug(obj, "object value", lvl=lvl)
+    lvl = 0 if verbose else 9
+    if _DEBUG >= lvl:
+        printc(
+            f"[obj_to_srl] object type: {type(obj)}", color="bright_cyan", bg="black"
+        )
+        printc(f"[obj_to_srl] object value: {obj}", color="bright_cyan", bg="black")
     if isinstance(obj, list) or isinstance(obj, tuple):
         return [obj_to_srl(item) for item in obj]
     elif isinstance(obj, dict):
@@ -382,7 +385,7 @@ def debug(
             f"🪲{i} \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
             f" {var_name} \033[36m\033[40m :\033[0m\033[40m"
         )
-        printc(pformat(var), color="bright_cyan", bg="black")
+        printc(pformat(var), color="bright_cyan", bg="black", pad=0)
         print()
 
 
@@ -391,7 +394,10 @@ def hr(
     len: int = 100,
     color: str = "bright_magenta",
     bg: str = "default",
+    lvl: int = -1,
 ) -> None:
+    if _DEBUG < lvl:
+        return
     printc(f"\n{symbol*len}\n", color=color, bg=bg)
 
 
