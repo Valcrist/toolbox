@@ -4,3 +4,4 @@ colorlog
 pytz
 tzlocal
 aiohttp
+rich

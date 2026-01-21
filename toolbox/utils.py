@@ -15,12 +15,14 @@ from pathlib import Path
 from hexbytes import HexBytes
 from toolbox.dot_env import get_env
 from toolbox.log import log
+from rich.console import Console, Pretty
 from traceback import format_exc as exc
 
 
 _DEBUG = get_env("DEBUG", 0)
 _DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%dT%H:%M:%S.%fZ")
 _utils_logged_msgs = []
+_console = Console()
 
 
 def obj_to_srl(obj: Any, dt_format: str = _DATE_FORMAT, verbose: bool = False) -> Any:
@@ -385,7 +387,7 @@ def debug(
             f"🪲{i} \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
             f" {var_name} \033[36m\033[40m :\033[0m\033[40m"
         )
-        printc(pformat(var), color="bright_cyan", bg="black", pad=0)
+        _console.print(Pretty(var, expand_all=True))
         print()
 
 
