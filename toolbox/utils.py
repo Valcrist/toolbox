@@ -257,7 +257,10 @@ def printc(
     bg: str = "default",
     pad: int = 1,
     no_nl: Union[int, bool] = 0,
+    lvl: int = -1,
 ) -> None:
+    if _DEBUG < lvl:
+        return
     colors = {
         "default": "\033[0m",
         "black": "\033[30m",
@@ -398,9 +401,7 @@ def hr(
     bg: str = "default",
     lvl: int = -1,
 ) -> None:
-    if _DEBUG < lvl:
-        return
-    printc(f"\n{symbol*len}\n", color=color, bg=bg)
+    printc(f"\n{symbol*len}\n", color=color, bg=bg, lvl=lvl)
 
 
 def var2str(var: Any, indent: int = 2) -> str:
