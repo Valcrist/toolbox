@@ -400,8 +400,15 @@ def hr(
     color: str = "bright_magenta",
     bg: str = "default",
     lvl: int = -1,
+    no_nl: Union[int, bool] = 0,
+    no_leading_nl: Union[int, bool] = 0,
 ) -> None:
-    printc(f"\n{symbol*len}\n", color=color, bg=bg, lvl=lvl)
+    printc(
+        f"{'' if no_leading_nl else '\n'}{symbol*len}{'' if no_nl else '\n'}",
+        color=color,
+        bg=bg,
+        lvl=lvl,
+    )
 
 
 def var2str(var: Any, indent: int = 2) -> str:

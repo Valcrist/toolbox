@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="toolbox",
-    version="0.1.32",
+    version="0.1.33",
     packages=find_packages(),
     install_requires=[
         "python-dotenv",
