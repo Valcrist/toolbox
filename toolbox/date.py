@@ -6,7 +6,7 @@ from toolbox.dot_env import get_env
 from toolbox.utils import log, debug, exc
 
 
-_DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%dT%H:%M:%S.%fZ")
+_DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%dT%H:%M:%S.%fZ", verbose=3)
 
 
 def is_date(date: datetime) -> bool:

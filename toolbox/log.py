@@ -7,7 +7,7 @@ from toolbox.dot_env import get_env
 from traceback import format_exc as exc
 
 
-LOG_LEVEL = get_env("LOG_LEVEL", 20)  # debug=10, info=20
+LOG_LEVEL = get_env("LOG_LEVEL", 20, verbose=1)  # debug=10, info=20
 
 _utils_log = logging.getLogger("_utils_log")
 _utils_log.setLevel(LOG_LEVEL)

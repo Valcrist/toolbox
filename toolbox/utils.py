@@ -19,8 +19,8 @@ from rich.console import Console, Pretty
 from traceback import format_exc as exc
 
 
-_DEBUG = get_env("DEBUG", 0)
-_DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%dT%H:%M:%S.%fZ")
+_DEBUG = get_env("DEBUG", 0, verbose=1)
+_DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%dT%H:%M:%S.%fZ", verbose=2)
 _utils_logged_msgs = []
 _console = Console()
 

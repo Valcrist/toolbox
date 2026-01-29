@@ -17,7 +17,7 @@ _DEBUG = int(os.environ.get("DEBUG", 0))
 def get_env(key: str, default: Any = None, verbose: int = 0) -> Any:
     val = os.environ.get(key, default)
 
-    if _DEBUG >= verbose:
+    if verbose and _DEBUG >= verbose:
         print_env(f"{key} [{type(val).__name__}]", f"{val} (default={default})")
 
     if isinstance(default, bool) and not isinstance(val, bool):
