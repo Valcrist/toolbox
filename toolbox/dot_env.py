@@ -1,29 +1,24 @@
 import os
-import inspect
 from typing import Any
-from dotenv import load_dotenv, find_dotenv
+from dotenv import find_dotenv, load_dotenv
 from traceback import format_exc as exc
 
 
-def debug(title: str, var: Any = None):
-    caller = inspect.currentframe().f_back
-    caller_file = os.path.basename(caller.f_code.co_filename)
-    print(
-        f"🪲 \033[36m[{caller_file}:get_env] ⮞ \033[30m\033[106m"
-        f" {title} \033[36m\033[40m : \033[96m{var}\033[0m\n"
-    )
+def print_env(title: str, var: Any = None):
+    print(f"\033[36m[env] \033[96m{title}\033[36m : \033[92m{var}\033[0m")
 
 
-env_file = find_dotenv()
-debug("env_file", env_file)
-load_dotenv(env_file, override=True)
+ENV_FILE = find_dotenv()
+print_env("ENV_FILE", ENV_FILE)
+load_dotenv(ENV_FILE, override=True)
+_DEBUG = int(os.environ.get("DEBUG", 0))
 
 
-def get_env(key: str, default: Any = None, verbose: bool = False) -> Any:
+def get_env(key: str, default: Any = None, verbose: int = 0) -> Any:
     val = os.environ.get(key, default)
 
-    if verbose:
-        debug(key, f"{val} (default={default}) {type(val)}")
+    if _DEBUG >= verbose:
+        print_env(f"{key} [{type(val).__name__}]", f"{val} (default={default})")
 
     if isinstance(default, bool) and not isinstance(val, bool):
         if val.lower() in ["false", "0", "none", "null"]:
