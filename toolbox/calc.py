@@ -15,13 +15,18 @@ def select_nearest(
 ) -> Union[int, float]:
     debug(target, lvl=2)
     debug(options, lvl=2)
-    if len(options) == 1:
-        return options[0]
-    if target in options:
-        nearest = target
+    opts = sorted(options)
+    if len(opts) == 1:
+        return opts[0]
+    if target in opts:
+        return target
+    idx = bisect.bisect_left(opts, target)
+    if idx == 0:
+        nearest = opts[0]
+    elif idx == len(opts):
+        nearest = opts[-1]
     else:
-        idx = bisect.bisect_left(options, target)
-        nearest = options[min(idx, len(options) - 1)]
+        left, right = opts[idx - 1], opts[idx]
+        nearest = left if abs(target - left) <= abs(right - target) else right
     debug(nearest, lvl=2)
-    options.remove(nearest)
     return nearest
