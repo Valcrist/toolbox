@@ -26,7 +26,7 @@ _console = Console()
 
 
 def exc(msg: Optional[str] = "") -> str:
-    if _DEBUG <= 1:
+    if _DEBUG < 2:
         return msg
     return f"{msg}\n\n{format_exc()}" if msg else format_exc()
 
@@ -318,8 +318,10 @@ def printc(
         print()
 
 
-def err(text: str, caller: Optional[FrameType] = None) -> None:
+def err(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> None:
     global _utils_logged_msgs
+    if traceback:
+        text = exc(text)
     if not caller:
         caller = inspect.currentframe().f_back
     caller_file = os.path.basename(caller.f_code.co_filename)
@@ -329,8 +331,10 @@ def err(text: str, caller: Optional[FrameType] = None) -> None:
     printc(message, "bright_yellow", "red", pad=1)
 
 
-def warn(text: str, caller: Optional[FrameType] = None) -> None:
+def warn(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> None:
     global _utils_logged_msgs
+    if traceback:
+        text = exc(text)
     if not caller:
         caller = inspect.currentframe().f_back
     caller_file = os.path.basename(caller.f_code.co_filename)
