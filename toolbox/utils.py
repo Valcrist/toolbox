@@ -320,8 +320,6 @@ def printc(
 
 def err(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> None:
     global _utils_logged_msgs
-    if traceback:
-        text = exc(text)
     if not caller:
         caller = inspect.currentframe().f_back
     caller_file = os.path.basename(caller.f_code.co_filename)
@@ -329,12 +327,12 @@ def err(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -
     message = f"⚠️ [{caller_file}:{caller_func}] ERROR: {text}"
     _utils_logged_msgs.append([0, message])
     printc(message, "bright_yellow", "red", pad=1)
+    if traceback and _DEBUG > 1:
+        printc(f"🔍 {format_exc()}", "bright_red", pad=0)
 
 
 def warn(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> None:
     global _utils_logged_msgs
-    if traceback:
-        text = exc(text)
     if not caller:
         caller = inspect.currentframe().f_back
     caller_file = os.path.basename(caller.f_code.co_filename)
@@ -342,6 +340,8 @@ def warn(text: str, caller: Optional[FrameType] = None, traceback: bool = True) 
     message = f"⚠️ [{caller_file}:{caller_func}] WARNING: {text}"
     _utils_logged_msgs.append([1, message])
     printc(message, "bright_yellow", "magenta", pad=1)
+    if traceback and _DEBUG > 1:
+        printc(f"🔍 {format_exc()}", "yellow", pad=0)
 
 
 def get_logged_msgs() -> List[List[Any]]:
