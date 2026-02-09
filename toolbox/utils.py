@@ -15,14 +15,20 @@ from pathlib import Path
 from hexbytes import HexBytes
 from toolbox.dot_env import get_env
 from toolbox.log import log
+from traceback import format_exc
 from rich.console import Console, Pretty
-from traceback import format_exc as exc
 
 
 _DEBUG = get_env("DEBUG", 0, verbose=1)
 _DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%dT%H:%M:%S.%fZ", verbose=2)
 _utils_logged_msgs = []
 _console = Console()
+
+
+def exc(msg: Optional[str] = "") -> str:
+    if _DEBUG <= 1:
+        return msg
+    return f"{msg}\n\n{format_exc()}" if msg else format_exc()
 
 
 def obj_to_srl(obj: Any, dt_format: str = _DATE_FORMAT, verbose: bool = False) -> Any:
@@ -57,7 +63,7 @@ def var2json(file: str, data: Any) -> bool:
             json.dump(obj_to_srl(data), outfile, indent=2)
         return True
     except:
-        log(exc(), lvl="error")
+        log(exc(f"Failed to save JSON to file: {file}"), lvl="error")
     return False
 
 
@@ -73,7 +79,7 @@ def json2var(
         with open(file) as json_file:
             return json.load(json_file)
     except:
-        log(exc(), lvl="error")
+        log(exc(f"Failed to load JSON from file: {file}"), lvl="error")
     return default
 
 
@@ -86,7 +92,7 @@ def csv2var(csv_path: str) -> List[Dict[str, Any]]:
                 if row:
                     data.append(row)
     except:
-        log(exc(), lvl="error")
+        log(exc(f"Failed to load CSV from file: {csv_path}"), lvl="error")
     return data
 
 
