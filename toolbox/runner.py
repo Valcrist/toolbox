@@ -2,7 +2,7 @@ import asyncio
 import threading
 from time import time
 from toolbox.date import time_now
-from toolbox.utils import err, warn, exc, printc
+from toolbox.utils import err, warn, trace, printc
 
 
 def get_or_create_event_loop():
@@ -15,8 +15,7 @@ def get_or_create_event_loop():
             asyncio.set_event_loop(loop)
             return loop
         except Exception as e:
-            err(f"Failed to create event loop: {e}")
-            warn(exc())
+            err(trace(f"Failed to create event loop: {e}"))
     return None
 
 
@@ -26,8 +25,7 @@ def run_async_tasks(*tasks):
         results = loop.run_until_complete(asyncio.gather(*tasks))
         return results[0] if len(tasks) == 1 else results
     except Exception as e:
-        err(f"Failed to run event loop: {e}")
-        warn(exc())
+        err(trace(f"Failed to run event loop: {e}"))
         return None
 
 
@@ -47,8 +45,7 @@ def run_async_bg_tasks(*coro_or_future):
         thread.start()
         return tasks[0] if len(tasks) == 1 else tasks
     except Exception as e:
-        err(f"Failed to schedule background task(s): {e}")
-        warn(exc())
+        err(trace(f"Failed to schedule background task(s): {e}"))
         return None
 
 
@@ -56,7 +53,7 @@ def safe_run(func, default=None):
     try:
         return func()
     except:
-        warn(exc())
+        warn(trace(f"Failed to safely run function: {func}"))
         return default
 
 
@@ -64,7 +61,7 @@ async def async_safe_run(func, default=None):
     try:
         return func()
     except:
-        warn(exc())
+        warn(trace(f"Failed to safely run async function: {func}"))
         return default
 
 

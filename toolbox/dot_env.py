@@ -1,7 +1,7 @@
 import os
 from typing import Any
 from dotenv import find_dotenv, load_dotenv
-from traceback import format_exc as exc
+from traceback import format_exc
 
 
 def print_env(title: str, var: Any = None):
@@ -30,14 +30,14 @@ def get_env(key: str, default: Any = None, verbose: int = 0) -> Any:
         try:
             val = int(float(val))
         except:
-            print(f"⚠️\033[93m\033[41m Exception: {exc()}\033[0m\033[40m")
+            print(f"⚠️\033[93m\033[41m Exception: {format_exc()}\033[0m\033[40m")
             val = 0
 
     elif isinstance(default, float):
         try:
             val = float(val)
         except:
-            print(f"⚠️\033[93m\033[41m Exception: {exc()}\033[0m\033[40m")
+            print(f"⚠️\033[93m\033[41m Exception: {format_exc()}\033[0m\033[40m")
             val = float(0)
 
     return val

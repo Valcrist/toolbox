@@ -4,7 +4,7 @@ from typing import Optional, Union, Tuple, List
 from datetime import datetime, timedelta
 from tzlocal import get_localzone
 from toolbox.dot_env import get_env
-from toolbox.utils import log, debug, exc
+from toolbox.utils import log, debug, trace
 
 
 _DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%d %H:%M:%S.%f %z", verbose=3)
@@ -25,8 +25,7 @@ def set_tz(date: datetime, tz_name: Optional[str] = None) -> datetime:
         if isinstance(date, datetime):
             return date.replace(tzinfo=tz)
     except Exception as e:
-        log(f"Error setting timezone: {e}", lvl="warning")
-        log(f"Exception: {exc()}", lvl="warning")
+        log(trace(f"Error setting timezone: {e}"), lvl="warning")
     return date
 
 
@@ -82,11 +81,12 @@ def to_date(
         return parsed.replace(tzinfo=tz) if tz_override or not parsed.tzinfo else parsed
     except:
         log(
-            f"Exception occured while converting date={date}, "
-            f"format={format}; will fallback to {default}",
+            trace(
+                f"Exception occured while converting date={date}, "
+                f"format={format}; will fallback to {default}"
+            ),
             lvl="warning",
         )
-        log(f"Exception: {exc()}", lvl="warning")
         return utc_now() if default == "utc" else default
 
 
@@ -94,7 +94,12 @@ def to_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
     try:
         return date.strftime(format)
     except:
-        log(f"Exception: {exc()}", lvl="error")
+        log(
+            trace(
+                f"Exception occured while converting date={date}, " f"format={format}"
+            ),
+            lvl="error",
+        )
         return None
 
 
@@ -111,7 +116,12 @@ def to_utc_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
         date = date.replace(tzinfo=pytz.utc)
         return date.strftime(format)
     except:
-        log(f"Exception: {exc()}", lvl="error")
+        log(
+            trace(
+                f"Exception occured while converting date={date}, " f"format={format}"
+            ),
+            lvl="error",
+        )
         return None
 
 
@@ -140,7 +150,13 @@ def time_delta(
         delta = abs(end - start)
         return delta.total_seconds()
     except:
-        log(f"Exception: {exc()}", lvl="error")
+        log(
+            trace(
+                f"Exception occured while calculating time delta between "
+                f"start={start} and end={end}, format={format}"
+            ),
+            lvl="error",
+        )
         return 0
 
 
@@ -162,11 +178,12 @@ def round_date(
         return rounded
     except:
         log(
-            f"Exception occured while rounding date={date}; "
-            f"will return original date",
-            lvl="warning",
+            trace(
+                f"Exception occured while rounding date={date}, "
+                f"format={format}; will return original date"
+            ),
+            lvl="error",
         )
-        log(f"Exception: {exc()}", lvl="warning")
         return date
 
 
@@ -189,7 +206,13 @@ def delta_days(
         delta = end - start
         return delta.days
     except:
-        log(f"Exception: {exc()}", lvl="error")
+        log(
+            trace(
+                f"Exception occured while calculating delta days between "
+                f"start={start} and end={end}, format={format}"
+            ),
+            lvl="error",
+        )
         return None
 
 
@@ -213,7 +236,13 @@ def fill_days(
         debug(intervals, lvl=2)
         return intervals
     except:
-        log(f"Exception: {exc()}", lvl="error")
+        log(
+            trace(
+                f"Exception occured while filling days between "
+                f"start={start} and end={end}, format={format}"
+            ),
+            lvl="error",
+        )
         return intervals
 
 
@@ -221,7 +250,7 @@ def date_days_ago(
     days: Union[int, None] = None, now: Optional[datetime] = None
 ) -> datetime:
     if now and not is_date(now):
-        log(f"[now] is not a date; will use current UTC time", lvl="warning")
+        log(trace("[now] is not a date; will use current UTC time"), lvl="warning")
         now = utc_now()
     elif not now:
         now = utc_now()
