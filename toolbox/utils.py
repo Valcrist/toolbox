@@ -50,6 +50,12 @@ def obj_to_json(obj: Any) -> str:
     return json.dumps(obj_to_srl(obj))
 
 
+def trace(msg: Optional[str] = "") -> str:
+    if _DEBUG < 2:
+        return msg
+    return f"{msg}\n\n{format_exc()}" if msg else format_exc()
+
+
 def var2json(file: str, data: Any) -> bool:
     try:
         Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
@@ -57,7 +63,7 @@ def var2json(file: str, data: Any) -> bool:
             json.dump(obj_to_srl(data), outfile, indent=2)
         return True
     except:
-        log(traceback(f"Failed to save JSON to file: {file}"), lvl="error")
+        log(trace(f"Failed to save JSON to file: {file}"), lvl="error")
     return False
 
 
@@ -73,7 +79,7 @@ def json2var(
         with open(file) as json_file:
             return json.load(json_file)
     except:
-        log(traceback(f"Failed to load JSON from file: {file}"), lvl="error")
+        log(trace(f"Failed to load JSON from file: {file}"), lvl="error")
     return default
 
 
@@ -86,7 +92,7 @@ def csv2var(csv_path: str) -> List[Dict[str, Any]]:
                 if row:
                     data.append(row)
     except:
-        log(traceback(f"Failed to load CSV from file: {csv_path}"), lvl="error")
+        log(trace(f"Failed to load CSV from file: {csv_path}"), lvl="error")
     return data
 
 
@@ -257,6 +263,7 @@ def printc(
     bg: str = "default",
     pad: int = 1,
     no_nl: Union[int, bool] = 0,
+    end: str = "\n",
     lvl: int = -1,
 ) -> None:
     if _DEBUG < lvl:
@@ -305,7 +312,7 @@ def printc(
     if pad == 1 and bg == "default":
         pad = 0
     padding = " " * pad
-    print(f"{color_code}{bgcol_code}{padding}{text}{padding}{reset_code}")
+    print(f"{color_code}{bgcol_code}{padding}{text}{padding}{reset_code}", end=end)
     if color != "default" and bg == "default" and no_nl == 0:
         no_nl = True
     if not no_nl:
@@ -320,15 +327,10 @@ def get_caller(caller: Optional[FrameType] = None) -> str:
     return caller_file, caller_func
 
 
-def trace(msg: Optional[str] = "") -> str:
-    if _DEBUG < 2:
-        return msg
-    return f"{msg}\n\n{format_exc()}" if msg else format_exc()
-
-
 def proc_msg(
     tag: str,
     msg: str,
+    lvl: int,
     col1: str,
     col2: str,
     bg: str,
@@ -342,19 +344,19 @@ def proc_msg(
     if traceback and _DEBUG > 1:
         printc(f"🔍 {format_exc()}", col2, pad=0)
     message = trace(msg) if traceback else msg
-    _utils_logged_msgs.append([1, f"{header} {message}"])
+    _utils_logged_msgs.append([lvl, f"{header} {message}"])
     return message
 
 
 def err(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> str:
     return proc_msg(
-        "ERROR", text, "bright_yellow", "bright_red", "red", caller, traceback
+        "ERROR", text, 0, "bright_yellow", "bright_red", "red", caller, traceback
     )
 
 
 def warn(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> str:
     return proc_msg(
-        "WARNING", text, "bright_yellow", "yellow", "magenta", caller, traceback
+        "WARNING", text, 1, "bright_yellow", "yellow", "magenta", caller, traceback
     )
 
 
@@ -367,13 +369,15 @@ def print_logged_msgs() -> None:
     global _utils_logged_msgs
     if not _utils_logged_msgs:
         return
-    hr("⚠️", len=50)
-    printc("Logged Messages:", "black", "yellow", pad=1)
+    hr("⚠️", len=20, no_nl=True, end="")
+    printc("LOGGED  MESSAGES", "yellow", "black", pad=2, no_nl=True, end="")
+    hr("⚠️", len=20, no_leading_nl=True)
     for msg in _utils_logged_msgs:
+        hr(".", color="yellow")
         if msg[0] == 0:
             printc(msg[1], "bright_yellow", "red", pad=1)
         else:
-            printc(msg[1], "bright_yellow", "bright_yellow", "magenta", pad=1)
+            printc(msg[1], "bright_yellow", "magenta", pad=1)
 
 
 def debug(
@@ -426,11 +430,14 @@ def hr(
     lvl: int = -1,
     no_nl: Union[int, bool] = 0,
     no_leading_nl: Union[int, bool] = 0,
+    end: str = "\n",
 ) -> None:
     printc(
         f"{'' if no_leading_nl else '\n'}{symbol*len}{'' if no_nl else '\n'}",
         color=color,
         bg=bg,
+        no_nl=no_nl,
+        end=end,
         lvl=lvl,
     )
 
