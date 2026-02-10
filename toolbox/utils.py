@@ -373,7 +373,7 @@ def print_logged_msgs() -> None:
     printc("LOGGED  MESSAGES", "yellow", "black", pad=2, no_nl=True, end="")
     hr("⚠️", len=20, no_leading_nl=True)
     for msg in _utils_logged_msgs:
-        hr(".", color="yellow")
+        hr(".", color="yellow", no_leading_nl=True)
         if msg[0] == 0:
             printc(msg[1], "bright_yellow", "red", pad=1)
         else:
