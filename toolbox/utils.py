@@ -312,36 +312,50 @@ def printc(
         print()
 
 
+def get_caller(caller: Optional[FrameType] = None) -> str:
+    if not caller:
+        caller = inspect.currentframe().f_back
+    caller_file = os.path.basename(caller.f_code.co_filename)
+    caller_func = caller.f_code.co_name
+    return caller_file, caller_func
+
+
 def trace(msg: Optional[str] = "") -> str:
     if _DEBUG < 2:
         return msg
     return f"{msg}\n\n{format_exc()}" if msg else format_exc()
 
 
-def err(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> None:
+def proc_msg(
+    tag: str,
+    msg: str,
+    col1: str,
+    col2: str,
+    bg: str,
+    caller: Optional[FrameType] = None,
+    traceback: bool = True,
+) -> str:
     global _utils_logged_msgs
-    if not caller:
-        caller = inspect.currentframe().f_back
-    caller_file = os.path.basename(caller.f_code.co_filename)
-    caller_func = caller.f_code.co_name
-    message = f"⚠️ [{caller_file}:{caller_func}] ERROR: {text}"
-    _utils_logged_msgs.append([0, message])
-    printc(message, "bright_yellow", "red", pad=1)
+    caller_file, caller_func = get_caller(caller)
+    header = f"⚠️ [{caller_file}:{caller_func}] {tag}:"
+    printc(f"{header} {msg}", col1, bg, pad=1)
     if traceback and _DEBUG > 1:
-        printc(f"🔍 {format_exc()}", "bright_red", pad=0)
+        printc(f"🔍 {format_exc()}", col2, pad=0)
+    message = trace(msg) if traceback else msg
+    _utils_logged_msgs.append([1, f"{header} {message}"])
+    return message
 
 
-def warn(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> None:
-    global _utils_logged_msgs
-    if not caller:
-        caller = inspect.currentframe().f_back
-    caller_file = os.path.basename(caller.f_code.co_filename)
-    caller_func = caller.f_code.co_name
-    message = f"⚠️ [{caller_file}:{caller_func}] WARNING: {text}"
-    _utils_logged_msgs.append([1, message])
-    printc(message, "bright_yellow", "magenta", pad=1)
-    if traceback and _DEBUG > 1:
-        printc(f"🔍 {format_exc()}", "yellow", pad=0)
+def err(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> str:
+    return proc_msg(
+        "ERROR", text, "bright_yellow", "bright_red", "red", caller, traceback
+    )
+
+
+def warn(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> str:
+    return proc_msg(
+        "WARNING", text, "bright_yellow", "yellow", "magenta", caller, traceback
+    )
 
 
 def get_logged_msgs() -> List[List[Any]]:
