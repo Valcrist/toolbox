@@ -4,10 +4,10 @@ import logging
 from typing import Optional
 from colorlog import ColoredFormatter
 from toolbox.dot_env import get_env
-from traceback import format_exc as exc
+from traceback import format_exc
 
 
-LOG_LEVEL = get_env("LOG_LEVEL", 20, verbose=1)  # debug=10, info=20
+LOG_LEVEL = get_env("LOG_LEVEL", 10, verbose=1)  # debug=10, info=20
 
 _utils_log = logging.getLogger("_utils_log")
 _utils_log.setLevel(LOG_LEVEL)
@@ -48,4 +48,4 @@ def log(message: str, lvl: str = "info", category: Optional[str] = None):
             _utils_log.info(f"[LOG:{tag}] {message}")
     except Exception as e:
         _utils_log.error(f"[EXCEPTION:{tag}:utils.log] ❌ {e}")
-        _utils_log.warning(f"[TRACEBACK:{tag}:utils.log] 🕵🏻‍♂️\n{exc()}")
+        _utils_log.warning(f"[TRACEBACK:{tag}:utils.log] 🕵🏻‍♂️\n{format_exc()}")
