@@ -424,7 +424,7 @@ def debug(
 
 def hr(
     symbol: str = "-",
-    len: int = 100,
+    len: int = 80,
     color: str = "bright_magenta",
     bg: str = "default",
     lvl: int = -1,
