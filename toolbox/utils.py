@@ -386,6 +386,7 @@ def debug(
     lvl: int = 1,
     caller: Optional[FrameType] = None,
     always: bool = False,
+    no_nl: bool = False,
 ) -> None:
     if not always and _DEBUG < lvl:
         return
@@ -410,7 +411,8 @@ def debug(
     if not isinstance(var, (list, tuple, dict)):
         print(
             f"🪲{i} \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
-            f" {var_name} \033[36m\033[40m : \033[96m{var}\033[0m\n"
+            f" {var_name} \033[36m\033[40m : \033[96m{var}\033[0m"
+            f"{'' if no_nl else '\n'}"
         )
 
     else:
@@ -419,7 +421,8 @@ def debug(
             f" {var_name} \033[36m\033[40m :\033[0m\033[40m"
         )
         _console.print(Pretty(var, expand_all=True))
-        print()
+        if not no_nl:
+            print()
 
 
 def hr(
