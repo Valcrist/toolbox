@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="toolbox",
-    version="0.1.39",
+    version="0.1.40",
     packages=find_packages(),
     install_requires=[
         "python-dotenv",
@@ -13,6 +13,13 @@ setup(
         "aiohttp",
         "rich",
     ],
+    extras_require={
+        "api": [
+            "uvicorn",
+            "fastapi",
+            "scalar-fastapi",
+        ],
+    },
     url="https://github.com/Valcrist/toolbox",
     author="Valcrist",
     author_email="github@valcrist.com",
