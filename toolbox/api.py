@@ -23,7 +23,7 @@ def logger_middleware(
     log_response: bool = False,
     skip_paths: list[str] | None = None,
 ) -> None:
-    skip = skip_paths or ["/", "/docs", "/openapi.json"]
+    skip = skip_paths or ["/", "/docs", "/openapi.json", "/favicon.ico"]
 
     @app.middleware("http")
     async def log_api_io(
