@@ -126,9 +126,9 @@ def init_scalar_docs(
 def run_server(
     module: str,
     env: str,
-    use_ssl: bool = False,
     port: int = 8080,
     hot_reload: bool = False,
+    use_ssl: bool = False,
     ssl_keyfile: str | None = None,
     ssl_certfile: str | None = None,
 ) -> None:
