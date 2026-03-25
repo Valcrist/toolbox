@@ -1,3 +1,4 @@
+import ast
 import os
 import re
 import csv
@@ -16,7 +17,7 @@ from hexbytes import HexBytes
 from toolbox.dot_env import get_env
 from toolbox.log import log
 from traceback import format_exc
-from rich.console import Console, Pretty
+from rich.console import Console
 
 
 _DEBUG = get_env("DEBUG", 0, verbose=1)
@@ -401,12 +402,23 @@ def debug(
 
     try:
         if not var_name:
-            var_name = [k for k, v in caller.f_locals.items() if v is var][0]
+            source_line = (
+                inspect.getframeinfo(caller, context=1).code_context[0].strip()
+            )
+            call = ast.parse(source_line, mode="eval").body
+            if isinstance(call, ast.Call) and call.args:
+                var_name = ast.unparse(call.args[0])
     except:
         pass
 
     if not var_name:
-        var_name = "unknown"
+        var_name = "unlabelled var"
+
+    if isinstance(var, str):
+        try:
+            var = json.loads(var)
+        except:
+            pass
 
     if not isinstance(var, (list, tuple, dict)):
         print(
@@ -420,7 +432,9 @@ def debug(
             f"🪲{i} \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
             f" {var_name} \033[36m\033[40m :\033[0m\033[40m"
         )
-        _console.print(Pretty(var, expand_all=True))
+        from rich.pretty import pretty_repr
+
+        _console.print(pretty_repr(var, expand_all=True).replace("'", '"'))
         if not no_nl:
             print()
 
