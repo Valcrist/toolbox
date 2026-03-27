@@ -8,6 +8,7 @@ try:
     import uvicorn
     from fastapi import FastAPI, Request
     from fastapi.responses import Response, StreamingResponse
+    from starlette.routing import Route
     from scalar_fastapi import get_scalar_api_reference
 except ImportError as e:
     raise ImportError(
@@ -23,14 +24,17 @@ def logger_middleware(
     log_response: bool = False,
     skip_paths: list[str] | None = None,
 ) -> None:
-    skip = skip_paths or ["/", "/docs", "/openapi.json", "/favicon.ico"]
+    skip = set(skip_paths or ["/", "/docs", "/openapi.json", "/favicon.ico"])
+
+    def get_valid_paths() -> set[str]:
+        return {route.path for route in app.routes if isinstance(route, Route)}
 
     @app.middleware("http")
     async def log_api_io(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         url = request.url.path
-        if url in skip:
+        if url in skip or url not in get_valid_paths():
             return await call_next(request)
 
         start_time = time.perf_counter()
