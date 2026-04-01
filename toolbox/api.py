@@ -26,15 +26,18 @@ def logger_middleware(
 ) -> None:
     skip = set(skip_paths or ["/", "/docs", "/openapi.json", "/favicon.ico"])
 
-    def get_valid_paths() -> set[str]:
-        return {route.path for route in app.routes if isinstance(route, Route)}
+    def get_valid_routes() -> list[Route]:
+        return [route for route in app.routes if isinstance(route, Route)]
 
     @app.middleware("http")
     async def log_api_io(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         url = request.url.path
-        if url in skip or url not in get_valid_paths():
+        is_valid_route = any(
+            route.path_regex.match(url) for route in get_valid_routes()
+        )
+        if url in skip or not is_valid_route:
             return await call_next(request)
 
         start_time = time.perf_counter()
