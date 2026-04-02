@@ -1,7 +1,7 @@
 import json
 import time
+import asyncio
 from typing import Callable, Awaitable
-from contextlib import asynccontextmanager
 from toolbox.utils import debug, hr
 
 try:
@@ -23,8 +23,11 @@ def logger_middleware(
     log_requests: bool = False,
     log_response: bool = False,
     skip_paths: list[str] | None = None,
+    tarpit_max_concurrent: int = 20,
+    tarpit_delay: int = 300,
 ) -> None:
     skip = set(skip_paths or ["/", "/docs", "/openapi.json", "/favicon.ico"])
+    tarpit_sem = asyncio.Semaphore(tarpit_max_concurrent)
 
     def get_valid_routes() -> list[Route]:
         return [route for route in app.routes if isinstance(route, Route)]
@@ -37,8 +40,14 @@ def logger_middleware(
         is_valid_route = any(
             route.path_regex.match(url) for route in get_valid_routes()
         )
-        if url in skip or not is_valid_route:
+        if url in skip:
             return await call_next(request)
+        if not is_valid_route:
+            if tarpit_sem.locked():
+                return Response(status_code=403)
+            async with tarpit_sem:
+                await asyncio.sleep(tarpit_delay)
+            return Response(status_code=403)
 
         start_time = time.perf_counter()
 
