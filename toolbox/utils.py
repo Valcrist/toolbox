@@ -516,3 +516,11 @@ def longest_common_subsequence_any(strings: List[str], no_case: bool = False) ->
                 if len(subseq) > len(lcs):
                     lcs = subseq
     return lcs
+
+
+def clean_log_file(input_file: str, output_file: str) -> None:
+    ansi = re.compile(r"\x1b\[[0-9;]*[mKJH]|\x1b\([AB]")
+    with open(input_file, "r", encoding="utf-8", errors="replace") as fin:
+        content = fin.read()
+    with open(output_file, "w", encoding="utf-8") as fout:
+        fout.write(ansi.sub("", content))
