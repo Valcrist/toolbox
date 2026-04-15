@@ -14,6 +14,7 @@ from datetime import datetime
 from base64 import b64encode
 from pathlib import Path
 from hexbytes import HexBytes
+from rich.pretty import pretty_repr
 from toolbox.dot_env import get_env
 from toolbox.log import log
 from traceback import format_exc
@@ -196,6 +197,22 @@ def float_normalize(
 def float_to_str(num: float, precision: int = 20) -> str:
     format_string = "{:." + str(precision) + "f}"
     return format_string.format(num).rstrip("0").rstrip(".")
+
+
+def truncate_strings(
+    obj: list | tuple | dict, limit: int = 3000
+) -> list | tuple | dict:
+    def _trim(v: object) -> object:
+        return (
+            v[:limit] + " ⟪✂️ truncated ✂️⟫"
+            if isinstance(v, str) and len(v) > limit
+            else v
+        )
+
+    if isinstance(obj, dict):
+        return {k: _trim(v) for k, v in obj.items()}
+    truncated = [_trim(v) for v in obj]
+    return tuple(truncated) if isinstance(obj, tuple) else truncated
 
 
 def last_run(init: int = 0, reset: bool = False) -> float:
@@ -432,9 +449,10 @@ def debug(
             f"🪲{i} \033[36m[{caller_file}:{caller_func}] ⮞ \033[30m\033[106m"
             f" {var_name} \033[36m\033[40m :\033[0m\033[40m"
         )
-        from rich.pretty import pretty_repr
-
-        _console.print(pretty_repr(var, expand_all=True).replace("'", '"'))
+        _console.print(
+            pretty_repr(truncate_strings(var), expand_all=True).replace("'", '"'),
+            markup=False,
+        )
         if not no_nl:
             print()
 
