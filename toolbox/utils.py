@@ -16,7 +16,7 @@ from pathlib import Path
 from hexbytes import HexBytes
 from rich.pretty import pretty_repr
 from toolbox.dot_env import get_env
-from toolbox.log import log
+from toolbox.exceptions import ToolboxError, ToolboxWarning
 from traceback import format_exc
 from rich.console import Console
 
@@ -64,8 +64,8 @@ def var2json(file: str, data: Any) -> bool:
         with open(file, "w") as outfile:
             json.dump(obj_to_srl(data), outfile, indent=2)
         return True
-    except:
-        log(trace(f"Failed to save JSON to file: {file}"), lvl="error")
+    except Exception as e:
+        ToolboxError(f"Failed to save JSON to file: {file} [{e}]")
     return False
 
 
@@ -75,13 +75,13 @@ def json2var(
     if not os.path.isfile(file):
         return default
     if validity and (time.time() - os.path.getmtime(file)) > validity:
-        log(f"File is stale; ignoring: {file}", lvl="warning")
+        ToolboxWarning(f"File is stale; ignoring: {file}", traceback=False)
         return default
     try:
         with open(file) as json_file:
             return json.load(json_file)
-    except:
-        log(trace(f"Failed to load JSON from file: {file}"), lvl="error")
+    except Exception as e:
+        ToolboxError(f"Failed to load JSON from file: {file} [{e}]")
     return default
 
 
@@ -93,15 +93,16 @@ def csv2var(csv_path: str) -> List[Dict[str, Any]]:
             for row in reader:
                 if row:
                     data.append(row)
-    except:
-        log(trace(f"Failed to load CSV from file: {csv_path}"), lvl="error")
+    except Exception as e:
+        ToolboxError(f"Failed to load CSV from file: {csv_path} [{e}]")
     return data
 
 
 def df2dict(df: Any) -> Dict[str, Any]:
     try:
         return df.T.to_dict()
-    except:
+    except Exception as e:
+        ToolboxWarning(f"Failed to convert dataframe to dict [{e}]")
         return {}
 
 
@@ -110,14 +111,16 @@ def str2float(s: Union[str, float]) -> float:
         return s
     try:
         return float(s.replace(",", ""))
-    except:
+    except Exception as e:
+        ToolboxWarning(f"Failed to convert string to float: {s!r} [{e}]")
         return 0
 
 
 def str2dec(s: str) -> dec:
     try:
         return dec(re.sub(r"[^\d.]", "", s))
-    except:
+    except Exception as e:
+        ToolboxWarning(f"Failed to convert string to decimal: {s!r} [{e}]")
         return dec(0)
 
 
@@ -126,7 +129,8 @@ def dec2float(v: Union[dec, float]) -> float:
         return v
     try:
         return float(v)
-    except:
+    except Exception as e:
+        ToolboxWarning(f"Failed to convert decimal to float: {v!r} [{e}]")
         return v
 
 
@@ -425,7 +429,7 @@ def debug(
             call = ast.parse(source_line, mode="eval").body
             if isinstance(call, ast.Call) and call.args:
                 var_name = ast.unparse(call.args[0])
-    except:
+    except Exception:
         pass
 
     if not var_name:
@@ -434,7 +438,7 @@ def debug(
     if isinstance(var, str):
         try:
             var = json.loads(var)
-        except:
+        except Exception:
             pass
 
     if not isinstance(var, (list, tuple, dict)):
@@ -484,21 +488,24 @@ def var2str(var: Any, indent: int = 2) -> str:
 def fix_spaces(text: str) -> str:
     try:
         return re.sub(r"(\S)(\()|(\))(\S)", r"\1\3 \2\4", text).strip()
-    except:
+    except Exception as e:
+        ToolboxWarning(f"Failed to fix spaces in: {text!r} [{e}]")
         return text
 
 
 def strip_brackets(text: str) -> str:
     try:
         return re.sub(r"[\[\{].*?[\]\}]", "", text)
-    except:
+    except Exception as e:
+        ToolboxWarning(f"Failed to strip brackets from: {text!r} [{e}]")
         return text
 
 
 def strip_spaces(text: str) -> str:
     try:
         return " ".join(text.replace("\n", " ").replace("\r", " ").split()).strip()
-    except:
+    except Exception as e:
+        ToolboxWarning(f"Failed to strip spaces from: {text!r} [{e}]")
         return text
 
 

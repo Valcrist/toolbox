@@ -1,23 +1,11 @@
 import os
 import re
 import sys
-import time
 import shutil
 from typing import Union
 from pathlib import Path
-from toolbox.utils import err, warn
-
-
-class fsError(Exception):
-    def __init__(self, message: str, traceback: bool = True):
-        super().__init__(message)
-        err(message, traceback=traceback)
-
-
-class fsWarning(Exception):
-    def __init__(self, message: str, traceback: bool = True):
-        super().__init__(message)
-        warn(message, traceback=traceback)
+from toolbox.utils import warn
+from toolbox.exceptions import ToolboxError
 
 
 def basedir() -> Path | None:
@@ -25,8 +13,7 @@ def basedir() -> Path | None:
     try:
         return Path(sys.argv[0]).resolve().parent
     except Exception as e:
-        err(f"Error getting basedir: {e}")
-        return None
+        raise ToolboxError(f"Error getting basedir: {e}")
 
 
 def os_path(path: str) -> str:
@@ -68,9 +55,7 @@ def create_path(path: Union[Path, str]) -> bool:
         Path(path).mkdir(parents=True, exist_ok=True)
         return True
     except Exception as e:
-        err(f"Failed to create path: {path}")
-        warn(f"Exception: {e}")
-        return False
+        raise ToolboxError(f"Failed to create path: {path} [{e}]")
 
 
 def sanitize_path(path: str, sub: str = "_") -> str:
@@ -95,8 +80,7 @@ def dissect_path(
         v["name"], v["ext"] = os.path.splitext(v["file"])
         v["ext"] = v["ext"].lstrip(".")
     except Exception as e:
-        err(f"Error dissecting path: {path}")
-        warn(f"Exception: {e}")
+        raise ToolboxError(f"Error dissecting path: {path} [{e}]")
     return v
 
 
@@ -107,12 +91,11 @@ def delete(path: Union[Path, str]) -> bool:
             shutil.rmtree(path)
             return True
     except Exception as e:
-        err(f"Failed to delete: {path}")
-        warn(f"Exception: {e}")
+        raise ToolboxError(f"Failed to delete: {path} [{e}]")
     return False
 
 
-def copy(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
+def copy(src: str, dst: str, retries: int = 3) -> bool:
     """Copy src to dst, retrying up to `retries` times on failure."""
     try:
         os.makedirs(os.path.dirname(dst), exist_ok=True)
@@ -122,17 +105,15 @@ def copy(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
                     shutil.copy(src, dst)
                     return True
             except Exception as e:
-                warn(f"Retrying copy [{attempt + 1}/{retries}]: {src} to {dst}")
-                warn(f"Exception: {e}")
-                time.sleep(delay)
+                warn(f"Retrying copy [{attempt + 1}/{retries}]: {src} to {dst} [{e}]")
+        warn(f"Failed to copy after {retries} attempts: {src} to {dst}")
     except Exception as e:
-        err(f"Failed to copy: {src} to {dst}")
-        warn(f"Exception: {e}")
+        raise ToolboxError(f"Failed to copy: {src} to {dst} [{e}]")
     return False
 
 
-def move(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
-    """Move src to dst, retrying up to `retries` times. Falls back to copy on failure."""
+def move(src: str, dst: str, retries: int = 3) -> bool:
+    """Move src to dst, retrying up to `retries` times. Falls back to copy on fail."""
     try:
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         for attempt in range(retries):
@@ -141,24 +122,14 @@ def move(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
                     shutil.move(src, dst)
                     return True
             except Exception as e:
-                warn(f"Retrying move [{attempt + 1}/{retries}]: {src} to {dst}")
-                warn(f"Exception: {e}")
-                time.sleep(delay)
-        warn(
-            f"Failed to move after {retries} attempts; "
-            f"copying instead: {src} to {dst}"
-        )
-        return copy(src, dst, retries=retries, delay=delay)
+                warn(f"Retrying move [{attempt + 1}/{retries}]: {src} to {dst} [{e}]")
+        warn(f"Failed to move after {retries} attempts: {src} to {dst}")
     except Exception as e:
-        err(f"Failed to move: {src} to {dst}")
-        warn(f"Exception: {e}")
-    return False
+        raise ToolboxError(f"Failed to move: {src} to {dst} [{e}]")
 
 
-def copy_move(
-    src: str, dst: str, no_move: bool = False, not_retries: int = 3, not_delay: int = 1
-) -> bool:
+def copy_move(src: str, dst: str, no_move: bool = False, not_retries: int = 3) -> bool:
     """Copy or move src to dst. Pass `no_move=True` to force a copy."""
     if no_move:
-        return copy(src, dst, retries=not_retries, delay=not_delay)
-    return move(src, dst, retries=not_retries, delay=not_delay)
+        return copy(src, dst, retries=not_retries)
+    return move(src, dst, retries=not_retries)

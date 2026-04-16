@@ -4,7 +4,8 @@ from typing import Optional, Union, Tuple, List
 from datetime import datetime, timedelta
 from tzlocal import get_localzone
 from toolbox.dot_env import get_env
-from toolbox.utils import log, debug, trace
+from toolbox.utils import debug
+from toolbox.exceptions import ToolboxError, ToolboxWarning
 
 
 _DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%d %H:%M:%S.%f %z", verbose=3)
@@ -25,7 +26,7 @@ def set_tz(date: datetime, tz_name: Optional[str] = None) -> datetime:
         if isinstance(date, datetime):
             return date.replace(tzinfo=tz)
     except Exception as e:
-        log(trace(f"Error setting timezone: {e}"), lvl="warning")
+        ToolboxWarning(f"Error setting timezone: {e}")
     return date
 
 
@@ -79,13 +80,9 @@ def to_date(
         date = re.sub(r"(\.\d{6})\d+", r"\1", date)
         parsed = datetime.strptime(date, format)
         return parsed.replace(tzinfo=tz) if tz_override or not parsed.tzinfo else parsed
-    except:
-        log(
-            trace(
-                f"Exception occured while converting date={date}, "
-                f"format={format}; will fallback to {default}"
-            ),
-            lvl="warning",
+    except Exception as e:
+        ToolboxWarning(
+            f"Error converting date={date}, format={format}, default={default} [{e}]"
         )
         return utc_now() if default == "utc" else default
 
@@ -93,14 +90,8 @@ def to_date(
 def to_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
     try:
         return date.strftime(format)
-    except:
-        log(
-            trace(
-                f"Exception occured while converting date={date}, " f"format={format}"
-            ),
-            lvl="error",
-        )
-        return None
+    except Exception as e:
+        raise ToolboxError(f"Error converting date={date}, format={format} [{e}]")
 
 
 def to_utc_date(
@@ -115,14 +106,8 @@ def to_utc_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
     try:
         date = date.replace(tzinfo=pytz.utc)
         return date.strftime(format)
-    except:
-        log(
-            trace(
-                f"Exception occured while converting date={date}, " f"format={format}"
-            ),
-            lvl="error",
-        )
-        return None
+    except Exception as e:
+        raise ToolboxError(f"Error converting date={date}, format={format} [{e}]")
 
 
 def to_timestamp(date: Union[datetime, str], format: str = _DATE_FORMAT) -> int:
@@ -149,15 +134,11 @@ def time_delta(
         debug(end, lvl=2)
         delta = abs(end - start)
         return delta.total_seconds()
-    except:
-        log(
-            trace(
-                f"Exception occured while calculating time delta between "
-                f"start={start} and end={end}, format={format}"
-            ),
-            lvl="error",
+    except Exception as e:
+        raise ToolboxError(
+            f"Error calculating time delta: start={start}, end={end}, "
+            f"format={format} [{e}]"
         )
-        return 0
 
 
 def round_date(
@@ -176,15 +157,8 @@ def round_date(
         debug(date, "original date", lvl=2)
         debug(rounded, "rounded date", lvl=2)
         return rounded
-    except:
-        log(
-            trace(
-                f"Exception occured while rounding date={date}, "
-                f"format={format}; will return original date"
-            ),
-            lvl="error",
-        )
-        return date
+    except Exception as e:
+        raise ToolboxError(f"Error rounding date={date}, format={format} [{e}]")
 
 
 def round_to_last_min(
@@ -205,15 +179,11 @@ def delta_days(
         end = to_date(end, format=format) if end else utc_now()
         delta = end - start
         return delta.days
-    except:
-        log(
-            trace(
-                f"Exception occured while calculating delta days between "
-                f"start={start} and end={end}, format={format}"
-            ),
-            lvl="error",
+    except Exception as e:
+        raise ToolboxError(
+            f"Error calculating delta days: start={start}, end={end}, "
+            f"format={format} [{e}]"
         )
-        return None
 
 
 def fill_days(
@@ -235,22 +205,17 @@ def fill_days(
             current_date += timedelta(minutes=mins)
         debug(intervals, lvl=2)
         return intervals
-    except:
-        log(
-            trace(
-                f"Exception occured while filling days between "
-                f"start={start} and end={end}, format={format}"
-            ),
-            lvl="error",
+    except Exception as e:
+        raise ToolboxError(
+            f"Error filling days: start={start}, end={end}, format={format} [{e}]"
         )
-        return intervals
 
 
 def date_days_ago(
     days: Union[int, None] = None, now: Optional[datetime] = None
 ) -> datetime:
     if now and not is_date(now):
-        log(trace("[now] is not a date; will use current UTC time"), lvl="warning")
+        ToolboxWarning("[now] is not a date")
         now = utc_now()
     elif not now:
         now = utc_now()

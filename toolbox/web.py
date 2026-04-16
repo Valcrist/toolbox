@@ -2,7 +2,8 @@ import json
 import asyncio
 import aiohttp
 from toolbox.runner import run_async_tasks
-from toolbox.utils import debug, err, warn, trace
+from toolbox.utils import debug
+from toolbox.exceptions import ToolboxError
 
 
 async def async_get_url(
@@ -45,7 +46,7 @@ async def async_get_url(
                             resp, url, response_type=response_type
                         )
         except Exception as e:
-            err(trace(f"{url}: {e}"))
+            ToolboxError(f"Error fetching url={url} [{e}]")
             return {"code": -1, "resp": None}
 
     if isinstance(url, list):

@@ -1,6 +1,7 @@
 import hashlib
 import pickle
 from typing import Optional, Any
+from toolbox.exceptions import ToolboxWarning
 
 
 def hash_str(text: str, salt: str = "", length: int = 32) -> Optional[str]:
@@ -8,7 +9,8 @@ def hash_str(text: str, salt: str = "", length: int = 32) -> Optional[str]:
         salted = salt + text
         hash_digest = hashlib.sha256(salted.encode("utf-8")).hexdigest()
         return hash_digest[:length]
-    except Exception:
+    except Exception as e:
+        ToolboxWarning(f"Error hashing string [{e}]")
         return None
 
 
@@ -19,7 +21,8 @@ def hash_var(*var: Any, salt: str = "", length: int = 32) -> Optional[str]:
         salted = salt.encode("utf-8") + serialized
         hash_digest = hashlib.sha256(salted).hexdigest()
         return hash_digest[:length]
-    except Exception:
+    except Exception as e:
+        ToolboxWarning(f"Error hashing variable [{e}]")
         return None
 
 
@@ -33,7 +36,8 @@ def hash_file(file: str, salt: str = "", length: int = 32) -> Optional[str]:
                 sha.update(buf[:i])
         hash_digest = sha.hexdigest()
         return hash_digest[:length]
-    except Exception:
+    except Exception as e:
+        ToolboxWarning(f"Error hashing file: {file} [{e}]")
         return None
 
 
