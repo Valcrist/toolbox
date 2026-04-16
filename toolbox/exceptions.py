@@ -1,41 +1,48 @@
 import os
+import sys
 import inspect
+import traceback
 from types import FrameType
-from traceback import format_exc
 
 
-def _emit(
-    txt: str, clr: FrameType, lbl: str, c1: str, c2: str, tb: bool = True
-) -> None:
+def _emit(txt: str, clr: FrameType, lbl: str, col: str) -> None:
     print(
-        f"\033[93m{c1} ⚠️ [{os.path.basename(clr.f_code.co_filename)}"
+        f"\033[93m{col} ⚠️ [{os.path.basename(clr.f_code.co_filename)}"
         f":{clr.f_code.co_name}] {lbl}: {txt} \033[0m\033[40m\n"
     )
-    if tb:
-        print(f"{c2}🔍 {format_exc()}\033[0m\033[40m")
+
+
+def _excepthook(exc_type: type, exc_value: BaseException, exc_tb: object) -> None:
+    if isinstance(exc_value, ToolboxError):
+        lines = traceback.format_exception(exc_type, exc_value, exc_tb)
+        print(f"\033[91m🔍 {''.join(lines)}\033[0m\033[40m")
+    elif isinstance(exc_value, ToolboxWarning):
+        lines = traceback.format_exception(exc_type, exc_value, exc_tb)
+        print(f"\033[33m🔍 {''.join(lines)}\033[0m\033[40m")
+    else:
+        sys.__excepthook__(exc_type, exc_value, exc_tb)
+
+
+sys.excepthook = _excepthook
 
 
 class ToolboxError(Exception):
-    def __init__(self, message: str, traceback: bool = True):
+    def __init__(self, message: str):
         super().__init__(message)
         _emit(
             message,
             inspect.currentframe().f_back,
             "ERROR",
             "\033[41m",
-            "\033[91m",
-            traceback,
         )
 
 
 class ToolboxWarning(Exception):
-    def __init__(self, message: str, traceback: bool = True):
+    def __init__(self, message: str):
         super().__init__(message)
         _emit(
             message,
             inspect.currentframe().f_back,
             "WARNING",
             "\033[45m",
-            "\033[33m",
-            traceback,
         )

@@ -75,7 +75,7 @@ def json2var(
     if not os.path.isfile(file):
         return default
     if validity and (time.time() - os.path.getmtime(file)) > validity:
-        ToolboxWarning(f"File is stale; ignoring: {file}", traceback=False)
+        ToolboxWarning(f"File is stale; ignoring: {file}")
         return default
     try:
         with open(file) as json_file:
