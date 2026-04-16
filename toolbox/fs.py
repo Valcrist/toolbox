@@ -5,28 +5,54 @@ import time
 import shutil
 from typing import Union
 from pathlib import Path
-from toolbox.log import log
+from toolbox.utils import err, warn
+
+
+class fsError(Exception):
+    def __init__(self, message: str, traceback: bool = True):
+        super().__init__(message)
+        err(message, traceback=traceback)
+
+
+class fsWarning(Exception):
+    def __init__(self, message: str, traceback: bool = True):
+        super().__init__(message)
+        warn(message, traceback=traceback)
 
 
 def basedir() -> Path | None:
+    """Return the directory containing the running script, or None on error."""
     try:
         return Path(sys.argv[0]).resolve().parent
     except Exception as e:
-        log(f"Error getting basedir: {e}", lvl="error")
+        err(f"Error getting basedir: {e}")
         return None
 
 
 def os_path(path: str) -> str:
-    return str(path).replace("/", os.sep).replace("\\", os.sep)
+    """Normalize a path string using the OS-native separator."""
+    return str(Path(path))
+
+
+def slash_nix(path: str) -> str:
+    """Convert backslashes to forward slashes."""
+    return path.replace("\\", "/")
+
+
+def slash_win(path: str) -> str:
+    """Convert forward slashes to backslashes."""
+    return path.replace("/", "\\")
 
 
 def strip_basedir(path: str, basedir: Union[Path, str] = basedir()) -> str:
+    """Remove the basedir prefix from a path, returning the relative remainder."""
     if path.startswith(str(basedir)):
         return path.replace(str(basedir), "").lstrip(os.sep)
     return path
 
 
 def build_path(paths: list[str] | str, basedir: Union[Path, str] = basedir()) -> str:
+    """Join one or more path segments onto basedir and return the result."""
     if not isinstance(paths, list):
         paths = [paths]
     final = str(basedir)
@@ -36,9 +62,26 @@ def build_path(paths: list[str] | str, basedir: Union[Path, str] = basedir()) ->
     return final
 
 
+def create_path(path: Union[Path, str]) -> bool:
+    """Create a directory and all missing parents. Return True on success."""
+    try:
+        Path(path).mkdir(parents=True, exist_ok=True)
+        return True
+    except Exception as e:
+        err(f"Failed to create path: {path}")
+        warn(f"Exception: {e}")
+        return False
+
+
+def sanitize_path(path: str, sub: str = "_") -> str:
+    """Replace illegal filename characters with `sub` (default `_`)."""
+    return re.sub(r'[<>:"|?*]', sub, path)
+
+
 def dissect_path(
     path: str, basedir: Union[Path, str] = basedir()
 ) -> dict[str, str | list[str] | None]:
+    """Break a path into components: base, dirs, file, name, and ext."""
     v = {}
     dirs = os.path.dirname(os_path(path))
     try:
@@ -51,26 +94,26 @@ def dissect_path(
         v["file"] = os.path.basename(os_path(path))
         v["name"], v["ext"] = os.path.splitext(v["file"])
         v["ext"] = v["ext"].lstrip(".")
-    except:
-        log(f"Error dissecting path: {path}", lvl="error")
+    except Exception as e:
+        err(f"Error dissecting path: {path}")
+        warn(f"Exception: {e}")
     return v
 
 
-def sanitize_path(path: str, sub: str = "_") -> str:
-    return re.sub(r'[<>:"|?*]', sub, path)
-
-
 def delete(path: Union[Path, str]) -> bool:
+    """Delete a file or directory tree. Return True if it existed and was removed."""
     try:
         if os.path.exists(path):
             shutil.rmtree(path)
             return True
-    except:
-        log(f"Failed to delete: {path}", lvl="error")
+    except Exception as e:
+        err(f"Failed to delete: {path}")
+        warn(f"Exception: {e}")
     return False
 
 
 def copy(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
+    """Copy src to dst, retrying up to `retries` times on failure."""
     try:
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         for attempt in range(retries):
@@ -79,14 +122,17 @@ def copy(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
                     shutil.copy(src, dst)
                     return True
             except Exception as e:
-                log(f"Retrying copy: {src} to {dst}", lvl="warning")
+                warn(f"Retrying copy [{attempt + 1}/{retries}]: {src} to {dst}")
+                warn(f"Exception: {e}")
                 time.sleep(delay)
-    except:
-        log(f"Failed to copy: {src} to {dst}", lvl="error")
+    except Exception as e:
+        err(f"Failed to copy: {src} to {dst}")
+        warn(f"Exception: {e}")
     return False
 
 
 def move(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
+    """Move src to dst, retrying up to `retries` times. Falls back to copy on failure."""
     try:
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         for attempt in range(retries):
@@ -95,22 +141,24 @@ def move(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
                     shutil.move(src, dst)
                     return True
             except Exception as e:
-                log(f"Retrying move: {src} to {dst}", lvl="warning")
+                warn(f"Retrying move [{attempt + 1}/{retries}]: {src} to {dst}")
+                warn(f"Exception: {e}")
                 time.sleep(delay)
-        log(
-            f"Failed to move after {retries} attempts; copying instead: "
-            f"{src} to {dst}",
-            lvl="warning",
+        warn(
+            f"Failed to move after {retries} attempts; "
+            f"copying instead: {src} to {dst}"
         )
         return copy(src, dst, retries=retries, delay=delay)
-    except:
-        log(f"Failed to move: {src} to {dst}", lvl="error")
+    except Exception as e:
+        err(f"Failed to move: {src} to {dst}")
+        warn(f"Exception: {e}")
     return False
 
 
 def copy_move(
     src: str, dst: str, no_move: bool = False, not_retries: int = 3, not_delay: int = 1
 ) -> bool:
+    """Copy or move src to dst. Pass `no_move=True` to force a copy."""
     if no_move:
         return copy(src, dst, retries=not_retries, delay=not_delay)
     return move(src, dst, retries=not_retries, delay=not_delay)
