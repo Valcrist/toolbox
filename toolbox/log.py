@@ -28,7 +28,12 @@ _utils_handler.setFormatter(_utils_formatter)
 _utils_log.addHandler(_utils_handler)
 
 
-def log(message: str, lvl: str = "info", category: Optional[str] = None):
+def log(
+    message: str,
+    lvl: str = "info",
+    category: Optional[str] = None,
+    traceback: bool = True,
+):
     lvl = lvl.lower()
     cat = f"{category}:" if category else ""
     try:
@@ -48,4 +53,5 @@ def log(message: str, lvl: str = "info", category: Optional[str] = None):
             _utils_log.info(f"[LOG:{tag}] {message}")
     except Exception as e:
         _utils_log.error(f"[EXCEPTION:{tag}:utils.log] ❌ {e}")
-        _utils_log.warning(f"[TRACEBACK:{tag}:utils.log] 🕵🏻‍♂️\n{format_exc()}")
+        if traceback:
+            _utils_log.warning(f"[TRACEBACK:{tag}:utils.log] 🕵🏻‍♂️\n{format_exc()}")

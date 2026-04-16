@@ -6,14 +6,13 @@ import shutil
 from typing import Union
 from pathlib import Path
 from toolbox.log import log
-from toolbox.utils import trace
 
 
 def basedir() -> Path | None:
     try:
         return Path(sys.argv[0]).resolve().parent
     except Exception as e:
-        log(trace(f"Error getting basedir: {e}"), lvl="error")
+        log(f"Error getting basedir: {e}", lvl="error")
         return None
 
 
@@ -53,7 +52,7 @@ def dissect_path(
         v["name"], v["ext"] = os.path.splitext(v["file"])
         v["ext"] = v["ext"].lstrip(".")
     except:
-        log(trace(f"Error dissecting path: {path}"), lvl="error")
+        log(f"Error dissecting path: {path}", lvl="error")
     return v
 
 
@@ -67,7 +66,7 @@ def delete(path: Union[Path, str]) -> bool:
             shutil.rmtree(path)
             return True
     except:
-        log(trace(f"Failed to delete: {path}"), lvl="error")
+        log(f"Failed to delete: {path}", lvl="error")
     return False
 
 
@@ -80,10 +79,10 @@ def copy(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
                     shutil.copy(src, dst)
                     return True
             except Exception as e:
-                log(trace(f"Retrying copy: {src} to {dst}"), lvl="warning")
+                log(f"Retrying copy: {src} to {dst}", lvl="warning")
                 time.sleep(delay)
     except:
-        log(trace(f"Failed to copy: {src} to {dst}"), lvl="error")
+        log(f"Failed to copy: {src} to {dst}", lvl="error")
     return False
 
 
@@ -96,18 +95,16 @@ def move(src: str, dst: str, retries: int = 3, delay: int = 1) -> bool:
                     shutil.move(src, dst)
                     return True
             except Exception as e:
-                log(trace(f"Retrying move: {src} to {dst}"), lvl="warning")
+                log(f"Retrying move: {src} to {dst}", lvl="warning")
                 time.sleep(delay)
         log(
-            trace(
-                f"Failed to move after {retries} attempts; copying instead: "
-                f"{src} to {dst}"
-            ),
+            f"Failed to move after {retries} attempts; copying instead: "
+            f"{src} to {dst}",
             lvl="warning",
         )
         return copy(src, dst, retries=retries, delay=delay)
     except:
-        log(trace(f"Failed to move: {src} to {dst}"), lvl="error")
+        log(f"Failed to move: {src} to {dst}", lvl="error")
     return False
 
 
