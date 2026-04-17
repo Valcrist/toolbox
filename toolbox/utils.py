@@ -21,16 +21,15 @@ from traceback import format_exc
 from rich.console import Console
 
 
-_DEBUG = get_env("DEBUG", 0, verbose=1)
-_DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%d %H:%M:%S.%f %z", verbose=2)
-_utils_logged_msgs = []
+DEBUG = get_env("DEBUG", 0, verbose=1)
+DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%d %H:%M:%S.%f %z", verbose=2)
 _console = Console()
 
 
 def obj_to_srl(obj: Any, dt_format: str = _DATE_FORMAT, verbose: bool = False) -> Any:
     """Recursively convert an object to a JSON-serializable form."""
     lvl = 0 if verbose else 9
-    if _DEBUG >= lvl:
+    if DEBUG >= lvl:
         printc(
             f"[obj_to_srl] object type: {type(obj)}", color="bright_cyan", bg="black"
         )
@@ -56,7 +55,7 @@ def obj_to_json(obj: Any) -> str:
 
 def trace(msg: Optional[str] = "") -> str:
     """Return msg appended with the current traceback when DEBUG >= 2."""
-    if _DEBUG < 2:
+    if DEBUG < 2:
         return msg
     return f"{msg}\n\n{format_exc()}" if msg else format_exc()
 
@@ -316,7 +315,7 @@ def printc(
     lvl: int = -1,
 ) -> None:
     """Print text with ANSI foreground/background color and optional padding."""
-    if _DEBUG < lvl:
+    if DEBUG < lvl:
         return
     colors = {
         "default": "\033[0m",
@@ -381,59 +380,34 @@ def get_caller(caller: Optional[FrameType] = None) -> str:
 def proc_msg(
     tag: str,
     msg: str,
-    lvl: int,
     col1: str,
     col2: str,
     bg: str,
     caller: Optional[FrameType] = None,
     traceback: bool = True,
 ) -> str:
-    """Print and log a tagged diagnostic message, optionally with a traceback."""
-    global _utils_logged_msgs
+    """Print a tagged diagnostic message, optionally with a traceback."""
     caller_file, caller_func = get_caller(caller)
     header = f"⚠️ [{caller_file}:{caller_func}] {tag}:"
     printc(f"{header} {msg}", col1, bg, pad=1)
-    if traceback and _DEBUG > 1:
+    if traceback and DEBUG > 1:
         printc(f"🔍 {format_exc()}", col2, pad=0)
     message = trace(msg) if traceback else msg
-    _utils_logged_msgs.append([lvl, f"{header} {message}"])
     return message
 
 
 def err(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> str:
     """Log and print an ERROR message with red styling."""
     return proc_msg(
-        "ERROR", text, 0, "bright_yellow", "bright_red", "red", caller, traceback
+        "ERROR", text, "bright_yellow", "bright_red", "red", caller, traceback
     )
 
 
 def warn(text: str, caller: Optional[FrameType] = None, traceback: bool = True) -> str:
     """Log and print a WARNING message with magenta styling."""
     return proc_msg(
-        "WARNING", text, 1, "bright_yellow", "yellow", "magenta", caller, traceback
+        "WARNING", text, "bright_yellow", "yellow", "magenta", caller, traceback
     )
-
-
-def get_logged_msgs() -> List[List[Any]]:
-    """Return all messages logged via err() or warn() this session."""
-    global _utils_logged_msgs
-    return _utils_logged_msgs
-
-
-def print_logged_msgs() -> None:
-    """Print all buffered error/warning messages with colored separators."""
-    global _utils_logged_msgs
-    if not _utils_logged_msgs:
-        return
-    hr("⚠️", len=20, no_nl=True, end="")
-    printc("LOGGED  MESSAGES", "yellow", "black", pad=2, no_nl=True, end="")
-    hr("⚠️", len=20, no_leading_nl=True)
-    for msg in _utils_logged_msgs:
-        hr(".", color="yellow", no_leading_nl=True)
-        if msg[0] == 0:
-            printc(msg[1], "bright_yellow", "red", pad=1)
-        else:
-            printc(msg[1], "bright_yellow", "magenta", pad=1)
 
 
 def debug(
@@ -445,7 +419,7 @@ def debug(
     no_nl: bool = False,
 ) -> None:
     """Print a labeled debug dump of var when DEBUG >= lvl."""
-    if not always and _DEBUG < lvl:
+    if not always and DEBUG < lvl:
         return
 
     i = f":{lvl}" if lvl > 1 else ""

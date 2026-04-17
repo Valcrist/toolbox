@@ -276,16 +276,10 @@ Print a horizontal rule made of repeated `symbol` characters.
 | `color` | `str` | `"bright_magenta"` | Foreground color |
 
 #### `err(text, caller, traceback) → str`
-Log and print an ERROR message with red styling.
+Print an ERROR message with red styling.
 
 #### `warn(text, caller, traceback) → str`
-Log and print a WARNING message with magenta styling.
-
-#### `get_logged_msgs() → list`
-Return all messages logged via `err()` or `warn()` this session.
-
-#### `print_logged_msgs() → None`
-Print all buffered error/warning messages with colored separators.
+Print a WARNING message with magenta styling.
 
 #### `trace(msg) → str`
 Return `msg` appended with the current traceback when `DEBUG >= 2`.
