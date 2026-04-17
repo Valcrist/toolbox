@@ -9,9 +9,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Valcrist/toolbox/stargazers"><img src="https://img.shields.io/github/stars/Valcrist/toolbox?style=flat&color=yellow" alt="Stars"></a>
-  <a href="https://github.com/Valcrist/toolbox/commits/main"><img src="https://img.shields.io/github/last-commit/Valcrist/toolbox?style=flat" alt="Last Commit"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm-orange?style=flat" alt="License"></a>
+  <img src="https://img.shields.io/github/v/tag/Valcrist/toolbox?style=flat&label=version&color=green" alt="Version">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-polyform--nc-orange?style=flat" alt="License"></a>
+  <img src="https://img.shields.io/github/languages/top/Valcrist/toolbox?style=flat" alt="Top Language">
+  <img src="https://img.shields.io/badge/code%20style-pep8-73e?style=flat" alt="Code Style">
+  <img src="https://img.shields.io/badge/req:python-3.10%2B-c47?style=flat" alt="Python Version">
+  <img src="https://img.shields.io/badge/status-active-brightgreen?style=flat" alt="Status">
 </p>
 
 ---
