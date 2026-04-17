@@ -49,6 +49,36 @@ def path_exists(path: Path | str) -> bool:
     return Path(path).exists()
 
 
+def is_dir(path: Path | str) -> bool:
+    """Return True if the path is a directory."""
+    return Path(path).is_dir()
+
+
+def is_file(path: Path | str) -> bool:
+    """Return True if the path is a regular file."""
+    return Path(path).is_file()
+
+
+def is_link(path: Path | str) -> bool:
+    """Return True if the path is a symbolic link."""
+    return Path(path).is_symlink()
+
+
+def is_junction(path: Path | str) -> bool:
+    """Return True if the path is a junction (Windows)."""
+    return Path(path).is_junction()
+
+
+def is_mount(path: Path | str) -> bool:
+    """Return True if the path is a mount point."""
+    return Path(path).is_mount()
+
+
+def list_dir(path: Path | str) -> list[str]:
+    """Return a list of entry names in the directory."""
+    return [p.name for p in Path(path).iterdir()]
+
+
 def create_path(path: Path | str) -> bool:
     """Create a directory and all missing parents. Return True on success."""
     try:
@@ -56,6 +86,36 @@ def create_path(path: Path | str) -> bool:
         return True
     except Exception as e:
         raise ToolboxError(f"Failed to create path: {path} [{e}]")
+
+
+def basename(path: Path | str) -> str:
+    """Return the final component of the path."""
+    return Path(path).name
+
+
+def barename(path: Path | str) -> str:
+    """Return the filename without its extension."""
+    return Path(path).stem
+
+
+def dirname(path: Path | str) -> str:
+    """Return the directory component of the path."""
+    return str(Path(path).parent)
+
+
+def normpath(path: Path | str) -> str:
+    """Normalize separators and remove trailing slashes."""
+    return str(Path(path))
+
+
+def realpath(path: Path | str) -> str:
+    """Resolve the path, collapsing `..` and symlinks."""
+    return str(Path(path).resolve())
+
+
+def join_path(base: Path | str, *parts: str) -> str:
+    """Join base with one or more path components."""
+    return str(Path(base).joinpath(*parts))
 
 
 def sanitize_path(path: str, sub: str = "_") -> str:
