@@ -5,6 +5,7 @@ from traceback import format_exc
 
 
 def print_env(title: str, var: Any = None):
+    """Print an env var name and value with color coding."""
     print(f"\033[36m[env] \033[96m{title}\033[36m : \033[92m{var}\033[0m")
 
 
@@ -15,6 +16,7 @@ DEBUG = int(os.environ.get("DEBUG", 0))
 
 
 def get_env(key: str, default: Any = None, verbose: int = 0) -> Any:
+    """Read an environment variable, casting it to the same type as default."""
     val = os.environ.get(key, default)
 
     if verbose and DEBUG >= verbose:

@@ -34,6 +34,7 @@ def log(
     category: Optional[str] = None,
     traceback: bool = True,
 ):
+    """Log message at the given level, tagging it with the caller's file and func."""
     lvl = lvl.lower()
     cat = f"{category}:" if category else ""
     try:

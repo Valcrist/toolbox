@@ -5,6 +5,7 @@ from toolbox.exceptions import ToolboxWarning
 
 
 def hash_str(text: str, salt: str = "", length: int = 32) -> Optional[str]:
+    """Return an SHA-256 hex digest of salt+text, truncated to length characters."""
     try:
         salted = salt + text
         hash_digest = hashlib.sha256(salted.encode("utf-8")).hexdigest()
@@ -15,6 +16,7 @@ def hash_str(text: str, salt: str = "", length: int = 32) -> Optional[str]:
 
 
 def hash_var(*var: Any, salt: str = "", length: int = 32) -> Optional[str]:
+    """Return an SHA-256 hex digest of a pickled variable, truncated to length chars."""
     try:
         data = var[0] if len(var) == 1 else var
         serialized = pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL)
@@ -27,6 +29,7 @@ def hash_var(*var: Any, salt: str = "", length: int = 32) -> Optional[str]:
 
 
 def hash_file(file: str, salt: str = "", length: int = 32) -> Optional[str]:
+    """Return an SHA-256 hex digest of a file's contents, truncated to length chars."""
     try:
         sha = hashlib.sha256()
         sha.update(salt.encode("utf-8"))
@@ -42,12 +45,15 @@ def hash_file(file: str, salt: str = "", length: int = 32) -> Optional[str]:
 
 
 def hash(*var: Any, salt: str = "", length: int = 32) -> Optional[str]:
+    """Return a 32-character hash of var (alias for hash_var)."""
     return hash_var(var, salt, length)
 
 
 def short_hash(*var: Any, salt: str = "", length: int = 16) -> Optional[str]:
+    """Return a 16-character hash of var."""
     return hash_var(var, salt, length)
 
 
 def full_hash(*var: Any, salt: str = "", length: int = 64) -> Optional[str]:
+    """Return a 64-character hash of var."""
     return hash_var(var, salt, length)

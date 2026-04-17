@@ -7,6 +7,7 @@ from toolbox.exceptions import ToolboxError, ToolboxWarning
 
 
 def get_or_create_event_loop():
+    """Return the running event loop, creating and setting a new one if none exists."""
     try:
         loop = asyncio.get_event_loop()
         return loop
@@ -20,6 +21,7 @@ def get_or_create_event_loop():
 
 
 def run_async_tasks(*tasks):
+    """Run one or more awaitables synchronously, returning a single result or a list."""
     try:
         loop = get_or_create_event_loop()
         results = loop.run_until_complete(asyncio.gather(*tasks))
@@ -29,6 +31,7 @@ def run_async_tasks(*tasks):
 
 
 def run_async_bg_tasks(*coro_or_future):
+    """Schedule awaitables on a new event loop in a background thread."""
     try:
 
         def run_in_thread(loop, tasks):
@@ -48,6 +51,7 @@ def run_async_bg_tasks(*coro_or_future):
 
 
 def safe_run(func, default=None):
+    """Call func(), returning default and emitting a warning on any exception."""
     try:
         return func()
     except Exception as e:
@@ -56,6 +60,7 @@ def safe_run(func, default=None):
 
 
 async def async_safe_run(func, default=None):
+    """Async version of safe_run: call func() and return default on any exception."""
     try:
         return func()
     except Exception as e:
@@ -64,6 +69,7 @@ async def async_safe_run(func, default=None):
 
 
 def timed_run(func, *args, **kwargs):
+    """Call func with args/kwargs, print elapsed time, and return the result."""
     exec_start = time()
     result = func(*args, **kwargs)
     exec_end = time()

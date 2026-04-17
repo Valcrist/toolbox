@@ -4,6 +4,7 @@ from toolbox.utils import debug
 
 
 def calc_delta(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
+    """Return b - a, or 0 if equal."""
     if a == b:
         return 0
     else:
@@ -13,6 +14,7 @@ def calc_delta(a: Union[int, float], b: Union[int, float]) -> Union[int, float]:
 def select_nearest(
     target: Union[int, float], options: list[Union[int, float]]
 ) -> Union[int, float]:
+    """Return the value in options closest to target."""
     debug(target, lvl=2)
     debug(options, lvl=2)
     opts = sorted(options)

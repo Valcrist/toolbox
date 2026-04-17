@@ -12,6 +12,7 @@ sys.excepthook = lambda exc_type, exc_value, exc_tb: print(
 
 
 def _emit(txt: str, clr: FrameType, lbl: str, col: str) -> None:
+    """Print a colored error/warning banner with file and function context."""
     print(
         f"\n\033[93m{col} ⚠️ [{os.path.basename(clr.f_code.co_filename)}"
         f":{clr.f_code.co_name}] {lbl}: {txt} \033[0m\033[40m\n"

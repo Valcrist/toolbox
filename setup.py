@@ -1,8 +1,11 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name="toolbox",
-    version="0.1.51",
+    version="0.1.52",
     packages=find_packages(),
     install_requires=[
         "python-dotenv",
@@ -24,4 +27,6 @@ setup(
     author="Valcrist",
     author_email="github@valcrist.com",
     description="Valcrist's toolbox",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
 )

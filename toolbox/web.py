@@ -12,6 +12,7 @@ async def async_get_url(
     payload: dict = {},
     response_type: str = "text",
 ):
+    """Fetch one or more URLs asynchronously and return status codes with responses."""
 
     async def decode_response(resp: aiohttp.ClientResponse, response_type: str):
         if response_type == "json":
@@ -67,6 +68,7 @@ def get_url(
     payload: dict = {},
     response_type: str = "text",
 ):
+    """Synchronous wrapper around async_get_url."""
     return run_async_tasks(
         async_get_url(
             url, headers=headers, payload=payload, response_type=response_type

@@ -12,15 +12,18 @@ _DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%d %H:%M:%S.%f %z", verbose=3)
 
 
 def is_date(date: datetime) -> bool:
+    """Return True if date is a datetime instance."""
     return isinstance(date, datetime)
 
 
 def default_date() -> datetime:
+    """Return 2000-01-01 00:00:00 UTC as the default sentinel date."""
     timestamp = 946684800  # 2000-01-01 00:00:00 GMT+0000
     return datetime.fromtimestamp(timestamp, tz=pytz.utc)
 
 
 def set_tz(date: datetime, tz_name: Optional[str] = None) -> datetime:
+    """Replace the timezone on date with tz_name, or the local zone if omitted."""
     try:
         tz = pytz.timezone(tz_name) if tz_name else get_localzone()
         if isinstance(date, datetime):
@@ -36,6 +39,7 @@ def time_now(
     s: bool = True,
     ms: bool = False,
 ) -> Union[datetime, str]:
+    """Return the current time in the given timezone, or as a formatted string."""
     if isinstance(tz_name, pytz.BaseTzInfo):
         tz = tz_name
     elif isinstance(tz_name, str):
@@ -58,12 +62,14 @@ def time_now(
 def utc_now(
     format: Union[bool, str] = False, s: bool = True, ms: bool = False
 ) -> Union[datetime, str]:
+    """Return the current UTC time, optionally as a formatted string."""
     return time_now(tz_name=pytz.utc, format=format, s=s, ms=ms)
 
 
 def utc_now_min(
     format: Union[bool, str] = False, ms: bool = False
 ) -> Union[datetime, str]:
+    """Return the current UTC time truncated to the minute."""
     return time_now(tz_name=pytz.utc, format=format, s=False, ms=ms)
 
 
@@ -74,6 +80,7 @@ def to_date(
     tz: pytz.BaseTzInfo = pytz.utc,
     tz_override: bool = False,
 ) -> datetime:
+    """Parse a date string or passthrough a datetime, applying tz when needed."""
     if is_date(date):
         return date.replace(tzinfo=tz) if tz_override or not date.tzinfo else date
     try:
@@ -88,6 +95,7 @@ def to_date(
 
 
 def to_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
+    """Format a datetime as a string, raising ToolboxError on failure."""
     try:
         return date.strftime(format)
     except Exception as e:
@@ -99,10 +107,12 @@ def to_utc_date(
     format: str = _DATE_FORMAT,
     default: Union[str, datetime] = "utc",
 ) -> datetime:
+    """Parse date and force its timezone to UTC."""
     return to_date(date, format=format, default=default, tz=pytz.utc, tz_override=True)
 
 
 def to_utc_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
+    """Replace date's timezone with UTC and return it as a formatted string."""
     try:
         date = date.replace(tzinfo=pytz.utc)
         return date.strftime(format)
@@ -111,11 +121,13 @@ def to_utc_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
 
 
 def to_timestamp(date: Union[datetime, str], format: str = _DATE_FORMAT) -> int:
+    """Convert a date or date string to a Unix timestamp integer."""
     date = to_date(date, format=format)
     return int(date.timestamp())
 
 
 def timestamp_to_date(timestamp: int, tz: pytz.BaseTzInfo = pytz.utc) -> datetime:
+    """Convert a Unix timestamp (seconds or milliseconds) to a datetime."""
     # If timestamp is in milliseconds (> year 2286), convert to seconds
     if timestamp > 999999999999:
         timestamp = timestamp / 1000
@@ -127,6 +139,7 @@ def time_delta(
     end: Optional[Union[datetime, str]] = None,
     format: str = _DATE_FORMAT,
 ) -> float:
+    """Return the absolute difference in seconds between start and end (default=now)."""
     try:
         start = to_date(start, format=format)
         end = to_date(end, format=format) if end else utc_now()
@@ -147,6 +160,7 @@ def round_date(
     ceil: bool = False,
     format: str = _DATE_FORMAT,
 ) -> datetime:
+    """Round date down (up when ceil=True) to the nearest multiple of mins minutes."""
     try:
         date = to_date(date, format=format)
         minute = date.minute
@@ -164,6 +178,7 @@ def round_date(
 def round_to_last_min(
     date: Union[datetime, str], format: str = _DATE_FORMAT
 ) -> datetime:
+    """Truncate date to the start of the preceding minute."""
     parsed = to_date(date, format=format)
     rounded = parsed.replace(second=0, microsecond=0)
     return rounded - timedelta(minutes=1)
@@ -174,6 +189,7 @@ def delta_days(
     end: Optional[Union[datetime, str]] = None,
     format: str = _DATE_FORMAT,
 ) -> Union[int, None]:
+    """Return the number of calendar days between start and end (defaults to now)."""
     try:
         start = to_date(start, format=format)
         end = to_date(end, format=format) if end else utc_now()
@@ -192,6 +208,7 @@ def fill_days(
     mins: int = 10,
     format: str = _DATE_FORMAT,
 ) -> List[datetime]:
+    """Return a list of datetimes at mins-minute intervals from start to end."""
     intervals = []
     try:
         end = end or utc_now()
@@ -214,6 +231,7 @@ def fill_days(
 def date_days_ago(
     days: Union[int, None] = None, now: Optional[datetime] = None
 ) -> datetime:
+    """Return the datetime that was days days before now (defaults to UTC now)."""
     if now and not is_date(now):
         ToolboxWarning("[now] is not a date")
         now = utc_now()
@@ -230,6 +248,7 @@ def dates_between(
     format: str = "%Y-%m-%d",
     string: bool = True,
 ) -> Tuple[List[Union[str, datetime]], List[int]]:
+    """Return (date_list, timestamp_list) for every calendar day from start to end."""
     start = to_date(start, format=format)
     end = to_date(end, format=format) if end else utc_now()
     dates = []

@@ -26,6 +26,7 @@ def logger_middleware(
     tarpit_max_concurrent: int = 20,
     tarpit_delay: int = 300,
 ) -> None:
+    """Register HTTP middleware that logs req/resp and tarpits unknown routes."""
     skip = set(skip_paths or ["/", "/docs", "/openapi.json", "/favicon.ico"])
     tarpit_sem = asyncio.Semaphore(tarpit_max_concurrent)
 
@@ -122,6 +123,8 @@ def init_scalar_docs(
     default_http_client: dict | None = None,
     **kwargs,
 ) -> None:
+    """Register a /docs route serving Scalar API reference for the app."""
+
     @app.get("/docs", include_in_schema=False)
     async def scalar_html():
         return get_scalar_api_reference(
@@ -148,6 +151,7 @@ def run_server(
     ssl_keyfile: str | None = None,
     ssl_certfile: str | None = None,
 ) -> None:
+    """Start a uvicorn server for the given ASGI module string."""
     ssl_mode = "SSL" if ssl_keyfile and ssl_certfile else "no SSL"
     print(f"\n{'=' * 80}\n[FastAPI] Running in {env} Mode ({ssl_mode})\n{'=' * 80}\n")
     uvicorn.run(
