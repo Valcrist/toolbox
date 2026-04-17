@@ -2,6 +2,7 @@ import os
 from typing import Any
 from dotenv import find_dotenv, load_dotenv
 from traceback import format_exc
+from toolbox.exceptions import ToolboxError
 
 
 def print_env(title: str, var: Any = None):
@@ -15,12 +16,17 @@ load_dotenv(ENV_FILE, override=True)
 DEBUG = int(os.environ.get("DEBUG", 0))
 
 
-def get_env(key: str, default: Any = None, verbose: int = 0) -> Any:
+def get_env(
+    key: str, default: Any = None, verbose: int = 0, required: bool = False
+) -> Any:
     """Read an environment variable, casting it to the same type as default."""
     val = os.environ.get(key, default)
 
     if verbose and DEBUG >= verbose:
         print_env(f"{key} [{type(val).__name__}]", f"{val} (default={default})")
+
+    if required and val is None:
+        raise ToolboxError(f"Environment variable {key} is required but not set")
 
     if isinstance(default, bool) and not isinstance(val, bool):
         if val.lower() in ["false", "0", "none", "null"]:
