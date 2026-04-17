@@ -65,7 +65,7 @@ def var2json(file: str, data: Any) -> bool:
     """Serialize data and write it to a JSON file, creating directories as needed."""
     try:
         Path(os.path.dirname(file)).mkdir(parents=True, exist_ok=True)
-        with open(file, "w") as outfile:
+        with open(file, "w", encoding="utf-8") as outfile:
             json.dump(obj_to_srl(data), outfile, indent=2)
         return True
     except Exception as e:
@@ -83,7 +83,7 @@ def json2var(
         ToolboxWarning(f"File is stale; ignoring: {file}")
         return default
     try:
-        with open(file) as json_file:
+        with open(file, encoding="utf-8") as json_file:
             return json.load(json_file)
     except Exception as e:
         ToolboxError(f"Failed to load JSON from file: {file} [{e}]")
