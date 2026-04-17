@@ -1,8 +1,6 @@
-import os
 import re
 import sys
 import shutil
-from typing import Union
 from pathlib import Path
 from toolbox.utils import warn
 from toolbox.exceptions import ToolboxError
@@ -31,25 +29,27 @@ def slash_win(path: str) -> str:
     return path.replace("/", "\\")
 
 
-def strip_basedir(path: str, basedir: Union[Path, str] = basedir()) -> str:
+def strip_basedir(path: str, basedir: Path | str = basedir()) -> str:
     """Remove the basedir prefix from a path, returning the relative remainder."""
-    if path.startswith(str(basedir)):
-        return path.replace(str(basedir), "").lstrip(os.sep)
+    base = str(basedir)
+    if path.startswith(base):
+        return path.replace(base, "").lstrip("/\\")
     return path
 
 
-def build_path(paths: list[str] | str, basedir: Union[Path, str] = basedir()) -> str:
+def build_path(paths: list[str] | str, basedir: Path | str = basedir()) -> str:
     """Join one or more path segments onto basedir and return the result."""
     if not isinstance(paths, list):
         paths = [paths]
-    final = str(basedir)
-    for path in paths:
-        path = os_path(path)
-        final = os.path.join(final, path)
-    return final
+    return str(Path(basedir).joinpath(*paths))
 
 
-def create_path(path: Union[Path, str]) -> bool:
+def path_exists(path: Path | str) -> bool:
+    """Return True if the path exists."""
+    return Path(path).exists()
+
+
+def create_path(path: Path | str) -> bool:
     """Create a directory and all missing parents. Return True on success."""
     try:
         Path(path).mkdir(parents=True, exist_ok=True)
@@ -64,31 +64,38 @@ def sanitize_path(path: str, sub: str = "_") -> str:
 
 
 def dissect_path(
-    path: str, basedir: Union[Path, str] = basedir()
+    path: str, basedir: Path | str = basedir()
 ) -> dict[str, str | list[str] | None]:
     """Break a path into components: base, dirs, file, name, and ext."""
-    v = {}
-    dirs = os.path.dirname(os_path(path))
     try:
-        if dirs.startswith(str(basedir)):
-            v["base"] = str(basedir)
-            dirs = os.path.relpath(dirs, basedir)
+        p = Path(path)
+        parent = p.parent
+        base_path = Path(basedir)
+        v: dict[str, str | list[str] | None] = {}
+        if parent.is_relative_to(base_path):
+            v["base"] = str(base_path)
+            dirs = parent.relative_to(base_path).parts
         else:
             v["base"] = None
-        v["dirs"] = dirs.split(os.sep)
-        v["file"] = os.path.basename(os_path(path))
-        v["name"], v["ext"] = os.path.splitext(v["file"])
-        v["ext"] = v["ext"].lstrip(".")
+            dirs = parent.parts
+        v["dirs"] = list(dirs)
+        v["file"] = p.name
+        v["name"] = p.stem
+        v["ext"] = p.suffix.lstrip(".")
     except Exception as e:
         raise ToolboxError(f"Error dissecting path: {path} [{e}]")
     return v
 
 
-def delete(path: Union[Path, str]) -> bool:
+def delete(path: Path | str) -> bool:
     """Delete a file or directory tree. Return True if it existed and was removed."""
     try:
-        if os.path.exists(path):
-            shutil.rmtree(path)
+        p = Path(path)
+        if p.is_file() or p.is_symlink():
+            p.unlink()
+            return True
+        if p.is_dir():
+            shutil.rmtree(p)
             return True
     except Exception as e:
         raise ToolboxError(f"Failed to delete: {path} [{e}]")
@@ -98,10 +105,10 @@ def delete(path: Union[Path, str]) -> bool:
 def copy(src: str, dst: str, retries: int = 3) -> bool:
     """Copy src to dst, retrying up to `retries` times on failure."""
     try:
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        create_path(Path(dst).parent)
         for attempt in range(retries):
             try:
-                if os.path.exists(src):
+                if path_exists(src):
                     shutil.copy(src, dst)
                     return True
             except Exception as e:
@@ -115,10 +122,10 @@ def copy(src: str, dst: str, retries: int = 3) -> bool:
 def move(src: str, dst: str, retries: int = 3) -> bool:
     """Move src to dst, retrying up to `retries` times. Falls back to copy on fail."""
     try:
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        create_path(Path(dst).parent)
         for attempt in range(retries):
             try:
-                if os.path.exists(src):
+                if path_exists(src):
                     shutil.move(src, dst)
                     return True
             except Exception as e:
@@ -128,8 +135,8 @@ def move(src: str, dst: str, retries: int = 3) -> bool:
         raise ToolboxError(f"Failed to move: {src} to {dst} [{e}]")
 
 
-def copy_move(src: str, dst: str, no_move: bool = False, not_retries: int = 3) -> bool:
+def copy_move(src: str, dst: str, no_move: bool = False, retries: int = 3) -> bool:
     """Copy or move src to dst. Pass `no_move=True` to force a copy."""
     if no_move:
-        return copy(src, dst, retries=not_retries)
-    return move(src, dst, retries=not_retries)
+        return copy(src, dst, retries=retries)
+    return move(src, dst, retries=retries)
