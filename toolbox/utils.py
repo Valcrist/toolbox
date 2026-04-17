@@ -26,7 +26,7 @@ DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%d %H:%M:%S.%f %z", verbose=2)
 _console = Console()
 
 
-def obj_to_srl(obj: Any, dt_format: str = _DATE_FORMAT, verbose: bool = False) -> Any:
+def obj_to_srl(obj: Any, dt_format: str = DATE_FORMAT, verbose: bool = False) -> Any:
     """Recursively convert an object to a JSON-serializable form."""
     lvl = 0 if verbose else 9
     if DEBUG >= lvl:

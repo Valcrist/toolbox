@@ -4,11 +4,8 @@ from typing import Optional, Union, Tuple, List
 from datetime import datetime, timedelta
 from tzlocal import get_localzone
 from toolbox.dot_env import get_env
-from toolbox.utils import debug
+from toolbox.utils import DATE_FORMAT, debug
 from toolbox.exceptions import ToolboxError, ToolboxWarning
-
-
-_DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%d %H:%M:%S.%f %z", verbose=3)
 
 
 def is_date(date: datetime) -> bool:
@@ -56,7 +53,7 @@ def time_now(
     elif isinstance(format, str):
         return now.strftime(format)
     else:
-        return now.strftime(_DATE_FORMAT)
+        return now.strftime(DATE_FORMAT)
 
 
 def utc_now(
@@ -75,7 +72,7 @@ def utc_now_min(
 
 def to_date(
     date: Union[datetime, str],
-    format: str = _DATE_FORMAT,
+    format: str = DATE_FORMAT,
     default: Union[str, datetime] = "utc",
     tz: pytz.BaseTzInfo = pytz.utc,
     tz_override: bool = False,
@@ -94,7 +91,7 @@ def to_date(
         return utc_now() if default == "utc" else default
 
 
-def to_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
+def to_str(date: datetime, format: str = DATE_FORMAT) -> Union[str, None]:
     """Format a datetime as a string, raising ToolboxError on failure."""
     try:
         return date.strftime(format)
@@ -104,14 +101,14 @@ def to_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
 
 def to_utc_date(
     date: Union[datetime, str],
-    format: str = _DATE_FORMAT,
+    format: str = DATE_FORMAT,
     default: Union[str, datetime] = "utc",
 ) -> datetime:
     """Parse date and force its timezone to UTC."""
     return to_date(date, format=format, default=default, tz=pytz.utc, tz_override=True)
 
 
-def to_utc_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
+def to_utc_str(date: datetime, format: str = DATE_FORMAT) -> Union[str, None]:
     """Replace date's timezone with UTC and return it as a formatted string."""
     try:
         date = date.replace(tzinfo=pytz.utc)
@@ -120,7 +117,7 @@ def to_utc_str(date: datetime, format: str = _DATE_FORMAT) -> Union[str, None]:
         raise ToolboxError(f"Error converting date={date}, format={format} [{e}]")
 
 
-def to_timestamp(date: Union[datetime, str], format: str = _DATE_FORMAT) -> int:
+def to_timestamp(date: Union[datetime, str], format: str = DATE_FORMAT) -> int:
     """Convert a date or date string to a Unix timestamp integer."""
     date = to_date(date, format=format)
     return int(date.timestamp())
@@ -137,7 +134,7 @@ def timestamp_to_date(timestamp: int, tz: pytz.BaseTzInfo = pytz.utc) -> datetim
 def time_delta(
     start: Union[datetime, str],
     end: Optional[Union[datetime, str]] = None,
-    format: str = _DATE_FORMAT,
+    format: str = DATE_FORMAT,
 ) -> float:
     """Return the absolute difference in seconds between start and end (default=now)."""
     try:
@@ -158,7 +155,7 @@ def round_date(
     date: Union[datetime, str],
     mins: int = 5,
     ceil: bool = False,
-    format: str = _DATE_FORMAT,
+    format: str = DATE_FORMAT,
 ) -> datetime:
     """Round date down (up when ceil=True) to the nearest multiple of mins minutes."""
     try:
@@ -176,7 +173,7 @@ def round_date(
 
 
 def round_to_last_min(
-    date: Union[datetime, str], format: str = _DATE_FORMAT
+    date: Union[datetime, str], format: str = DATE_FORMAT
 ) -> datetime:
     """Truncate date to the start of the preceding minute."""
     parsed = to_date(date, format=format)
@@ -187,7 +184,7 @@ def round_to_last_min(
 def delta_days(
     start: Union[datetime, str],
     end: Optional[Union[datetime, str]] = None,
-    format: str = _DATE_FORMAT,
+    format: str = DATE_FORMAT,
 ) -> Union[int, None]:
     """Return the number of calendar days between start and end (defaults to now)."""
     try:
@@ -206,7 +203,7 @@ def fill_days(
     start: Union[datetime, str],
     end: Optional[Union[datetime, str]] = None,
     mins: int = 10,
-    format: str = _DATE_FORMAT,
+    format: str = DATE_FORMAT,
 ) -> List[datetime]:
     """Return a list of datetimes at mins-minute intervals from start to end."""
     intervals = []
