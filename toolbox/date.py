@@ -140,8 +140,8 @@ def time_delta(
     try:
         start = to_date(start, format=format)
         end = to_date(end, format=format) if end else utc_now()
-        debug(start, lvl=2)
-        debug(end, lvl=2)
+        debug(start, lvl=3)
+        debug(end, lvl=3)
         delta = abs(end - start)
         return delta.total_seconds()
     except Exception as e:
@@ -165,8 +165,8 @@ def round_date(
         adj_mins = (minute // mins + delta) * mins
         rounded = date + timedelta(minutes=adj_mins - minute)
         rounded = rounded.replace(second=0, microsecond=0)
-        debug(date, "original date", lvl=2)
-        debug(rounded, "rounded date", lvl=2)
+        debug(date, "original date", lvl=3)
+        debug(rounded, "rounded date", lvl=3)
         return rounded
     except Exception as e:
         raise ToolboxError(f"Error rounding date={date}, format={format} [{e}]")
@@ -211,13 +211,13 @@ def fill_days(
         end = end or utc_now()
         start = round_date(start, mins=mins)
         end = round_date(end, mins=mins, ceil=True)
-        debug(start, lvl=2)
-        debug(end, lvl=2)
+        debug(start, lvl=3)
+        debug(end, lvl=3)
         current_date = start
         while current_date <= end:
             intervals.append(current_date)
             current_date += timedelta(minutes=mins)
-        debug(intervals, lvl=2)
+        debug(intervals, lvl=3)
         return intervals
     except Exception as e:
         raise ToolboxError(

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="toolbox",
-    version="0.1.58",
+    version="0.1.59",
     packages=find_packages(),
     install_requires=[
         "python-dotenv",
