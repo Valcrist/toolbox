@@ -91,10 +91,20 @@ def logger_middleware(
 
             hr("→", color="yellow", no_nl=True)
             if response_body:
-                try:
-                    debug(json.loads(response_body), log_tag, no_nl=True)
-                except json.JSONDecodeError:
-                    debug(response_body.decode(errors="ignore"), log_tag, no_nl=True)
+                content_type = response.media_type or ""
+                if "json" in content_type:
+                    try:
+                        debug(json.loads(response_body), log_tag, no_nl=True)
+                    except (json.JSONDecodeError, UnicodeDecodeError):
+                        debug(
+                            response_body.decode(errors="ignore"), log_tag, no_nl=True
+                        )
+                else:
+                    debug(
+                        url,
+                        f"[RESP:{response.status_code}] binary ({process_time:.2f}ms)",
+                        no_nl=True,
+                    )
             else:
                 debug({response.status_code}, log_tag, no_nl=True)
             hr("→", color="yellow", no_leading_nl=True)
