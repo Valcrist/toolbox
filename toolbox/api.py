@@ -91,7 +91,9 @@ def logger_middleware(
 
             hr("→", color="yellow", no_nl=True)
             if response_body:
-                content_type = response.media_type or ""
+                content_type = response.media_type or response.headers.get(
+                    "content-type", ""
+                )
                 if "json" in content_type:
                     try:
                         debug(json.loads(response_body), log_tag, no_nl=True)
