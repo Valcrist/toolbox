@@ -44,6 +44,8 @@ def obj_to_srl(obj: Any, dt_format: str = DATE_FORMAT, verbose: bool = False) ->
         return str(obj)
     elif isinstance(obj, HexBytes):
         return obj.hex()
+    elif isinstance(obj, dec):
+        return int(obj) if obj == obj.to_integral_value() else float(obj)
     else:
         return obj
 
