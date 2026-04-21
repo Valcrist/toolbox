@@ -2,6 +2,7 @@ import json
 import time
 import asyncio
 from typing import Callable, Awaitable
+from fnmatch import fnmatch
 from toolbox.utils import debug, hr
 
 try:
@@ -27,7 +28,7 @@ def logger_middleware(
     tarpit_delay: int = 300,
 ) -> None:
     """Register HTTP middleware that logs req/resp and tarpits unknown routes."""
-    skip = set(skip_paths or ["/", "/docs", "/openapi.json", "/favicon.ico"])
+    skip = set(["/", "/docs", "/openapi.json", "/favicon.ico"] + (skip_paths or []))
     tarpit_sem = asyncio.Semaphore(tarpit_max_concurrent)
 
     def get_valid_routes() -> list[Route]:
@@ -41,7 +42,7 @@ def logger_middleware(
         is_valid_route = any(
             route.path_regex.match(url) for route in get_valid_routes()
         )
-        if url in skip:
+        if any(fnmatch(url, p) for p in skip):
             return await call_next(request)
         if not is_valid_route:
             if tarpit_sem.locked():
