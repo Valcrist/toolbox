@@ -11,7 +11,7 @@ sys.excepthook = lambda exc_type, exc_value, exc_tb: print(
 )
 
 
-def _emit(txt: str, clr: FrameType, lbl: str, col: str) -> None:
+def emit_exc(txt: str, clr: FrameType, lbl: str, col: str) -> None:
     """Print a colored error/warning banner with file and function context."""
     print(
         f"\n\033[93m{col} ⚠️ [{os.path.basename(clr.f_code.co_filename)}"
@@ -22,7 +22,7 @@ def _emit(txt: str, clr: FrameType, lbl: str, col: str) -> None:
 class ToolboxError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
-        _emit(
+        emit_exc(
             message,
             inspect.currentframe().f_back,
             "ERROR",
@@ -33,7 +33,7 @@ class ToolboxError(Exception):
 class ToolboxWarning(Exception):
     def __init__(self, message: str):
         super().__init__(message)
-        _emit(
+        emit_exc(
             message,
             inspect.currentframe().f_back,
             "WARNING",
