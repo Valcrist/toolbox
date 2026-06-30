@@ -3,7 +3,6 @@ import sys
 import inspect
 import traceback
 
-
 sys.excepthook = lambda exc_type, exc_value, exc_tb: print(
     f"\033[33m🔍 {''.join(traceback.format_exception(exc_type, exc_value, exc_tb))}"
     f"\033[0m\033[40m"

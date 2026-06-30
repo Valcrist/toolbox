@@ -1,4 +1,5 @@
 import os
+import pathlib
 from typing import Any
 from dotenv import find_dotenv, load_dotenv
 from traceback import format_exc
@@ -13,6 +14,33 @@ def print_env(title: str, var: Any = None):
 ENV_FILE = find_dotenv()
 print_env("ENV_FILE", ENV_FILE)
 load_dotenv(ENV_FILE, override=True)
+
+_ENV_OVERRIDE_MAP = {
+    "DEV": ".env.dev",
+    "STAGING": ".env.staging",
+    "PROD": ".env.prod",
+    "LOCAL": ".env.local",
+    "TEST": ".env.test",
+}
+_env_name = os.environ.get("ENV", "").upper()
+_override_filename = _ENV_OVERRIDE_MAP.get(_env_name)
+
+if _env_name and not _override_filename:
+    print_env(
+        "ENV_OVERRIDE", f"WARNING: unknown ENV value '{_env_name}'; using default .env"
+    )
+elif _override_filename:
+    _base_dir = pathlib.Path(ENV_FILE).parent if ENV_FILE else pathlib.Path.cwd()
+    _override_path = _base_dir / _override_filename
+    if _override_path.exists():
+        load_dotenv(_override_path, override=True)
+        print_env("ENV_OVERRIDE", _override_path)
+    else:
+        print_env(
+            "ENV_OVERRIDE",
+            f"WARNING: {_override_filename} not found; using default .env",
+        )
+
 DEBUG = int(os.environ.get("DEBUG", 0))
 
 

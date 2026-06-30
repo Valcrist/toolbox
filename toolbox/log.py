@@ -6,7 +6,6 @@ from colorlog import ColoredFormatter
 from toolbox.dot_env import get_env
 from traceback import format_exc
 
-
 LOG_LEVEL = get_env("LOG_LEVEL", 10, verbose=1)  # debug=10, info=20
 
 _utils_log = logging.getLogger("_utils_log")

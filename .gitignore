@@ -183,5 +183,6 @@ migrations/
 media-*/
 **/media-*/
 
-.claude/
 CLAUDE.md
+.claude/
+zzz/

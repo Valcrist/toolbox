@@ -32,13 +32,24 @@ def logger_middleware(
     tarpit_sem = asyncio.Semaphore(tarpit_max_concurrent)
 
     def get_valid_routes() -> list[Route]:
-        return [route for route in app.routes if isinstance(route, Route)]
+        def collect(routes: list) -> list[Route]:
+            result = []
+            for route in routes:
+                if isinstance(route, Route):
+                    result.append(route)
+                elif hasattr(route, "original_router"):
+                    result.extend(collect(route.original_router.routes))
+            return result
+
+        return collect(app.routes)
 
     @app.middleware("http")
     async def log_api_io(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         url = request.url.path
+        debug(url)
+        debug(get_valid_routes(), "valid routes")
         is_valid_route = any(
             route.path_regex.match(url) for route in get_valid_routes()
         )

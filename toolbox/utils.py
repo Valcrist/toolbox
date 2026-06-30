@@ -20,7 +20,6 @@ from toolbox.exceptions import ToolboxError, ToolboxWarning
 from traceback import format_exc
 from rich.console import Console
 
-
 DEBUG = get_env("DEBUG", 0, verbose=1)
 DATE_FORMAT = get_env("DATE_FORMAT", "%Y-%m-%d %H:%M:%S.%f %z", verbose=2)
 _console = Console()
@@ -182,7 +181,7 @@ def row_to_dict(row: Any) -> Dict[str, Any]:
 
 
 def to_dict(
-    result: Union[List[Any], tuple, set, Any]
+    result: Union[List[Any], tuple, set, Any],
 ) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
     """Convert one or more ORM rows to a dict or list of dicts."""
     if isinstance(result, (list, tuple, set)):
