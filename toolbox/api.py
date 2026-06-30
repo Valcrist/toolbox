@@ -48,8 +48,6 @@ def logger_middleware(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         url = request.url.path
-        debug(url)
-        debug(get_valid_routes(), "valid routes")
         is_valid_route = any(
             route.path_regex.match(url) for route in get_valid_routes()
         )
